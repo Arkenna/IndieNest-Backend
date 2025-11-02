@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+
+package "com.arkenna.indienest.backend.shared"{
+    package "infrastructure"{
+        package "persistence"{
+            package "jpa"{
+                package "strategy"{
+                    class SnakeCasePhysicalNamingStrategy{
+                        --
+                        +toPhysicalCatalogName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
+                        +toPhysicalSchemaName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
+                        +toPhysicalTableName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
+                        +toPhysicalSequenceName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
+                        +toPhysicalColumnName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
+                        +toSnakeCase(identifier: Identifier): Identifier
+                        +toPlural(identifier: Identifier): Identifier
+                   }
+                }
+            }
+        }
+    }
+    package "interfaces"{
+        package "rest"{
+            record MessageResource{
+                +message: String
+            }
+        }
+    }
+    package "domain"{
+        package "model"{
+            class AuditableAbstractAggregateRoot{
+                -id: Int
+                --
+                +addDomainEvent(event: Object): Void
+            }
+        }
+    }
+}
+@enduml

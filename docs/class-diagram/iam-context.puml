@@ -1,7 +1,5 @@
 @startuml
-' Indie Nest Backend - class diagram (bounded contexts: community, iam, payment, profile, project, support, shared)
-' Full nested package grouping; normalized package/class block formatting to satisfy PlantUML parser
-
+left to right direction
 skinparam classAttributeIconSize 0
 
 package "com.arkenna.indienest.backend.iam"{
@@ -9,7 +7,7 @@ package "com.arkenna.indienest.backend.iam"{
         package "model"{
             package "aggregates"{
                 class Account <<Aggregate root>>{
-                    -id: AccountId,
+                    -id: AccountId
                     -userId: UserId,
                     -email: Email,
                     -password: Password,
@@ -17,6 +15,16 @@ package "com.arkenna.indienest.backend.iam"{
                     -role: AccountType
                     --
                     +Account(command: CreateAccountCommand)
+                    +getId(): Int
+                    +getUserId(): Int
+                    +getEmail(): String
+                    +getPassword(): Password
+                    +getIsActive(): Boolean
+                    +getRole: String
+                    +updateEmail(email: String): Void
+                    +updatePassword(password: String): Void
+                    +updateIsActive(isActive: Boolean): Void
+                    +updateRole(role: String): Void
                 }
                 class User <<Aggregate root>>{
                     -id: UserId,
@@ -24,6 +32,11 @@ package "com.arkenna.indienest.backend.iam"{
                     -phoneNumber: PhoneNumber,
                     --
                     +User(command: CreateUserCommand)
+                    +getId(): Int,
+                    +getName(): String
+                    +getPhoneNumber(): String
+                    +updateName(name: String): Void
+                    +updatePhoneNumber(phone: String): Void
                 }
             }
             package "value objects"{
@@ -43,9 +56,9 @@ package "com.arkenna.indienest.backend.iam"{
                     -value: Boolean
                 }
                 enum AccountType <<Value object>>{
-                    STANDARD,
-                    PROGRAMMER,
-                    ARTIST,
+                    STANDARD
+                    PROGRAMMER
+                    ARTIST
                     COMPOSER
                 }
                 class UserName <<Value object>>{
@@ -56,43 +69,44 @@ package "com.arkenna.indienest.backend.iam"{
                 }
             }
             package "commands"{
-                class CreateAccountCommand <<Command>>{
+                record CreateAccountCommand <<Command>>{
                     -userId: Int,
                     -email: String,
                     -password: String,
                     -isActive: Boolean,
                     -role: String
                 }
-                class CreateUserCommand <<Command>>{
+                record CreateUserCommand <<Command>>{
                     -name: String,
                     -phoneNumber: String
                 }
-                class UpdateUserCommand <<Command>>{
+                record UpdateUserCommand <<Command>>{
+                    -id: Int
                     -name: String,
                     -phoneNumber: String
                 }
-                class SignInCommand{
+                record SignInCommand{
                     +userName: String
                     +email: String
                     +password: String
                 }
-                class SignUpCommand{
+                record SignUpCommand{
                     +username: String,
                     +phoneNumber: String,
                     +email: String,
                     +password: String,
-                    +role: AccountType
+                    +role: String
                 }
             }
             package "queries"{
-                class GetAllAccountsQuery <<Query>>{
+                record GetAllAccountsQuery <<Query>>{
                 }
-                class GetAccountByIdQuery <<Query>>{
+                record GetAccountByIdQuery <<Query>>{
                     -id: AccountId
                 }
-                class GetAllUsersQuery <<Query>>{
+                record GetAllUsersQuery <<Query>>{
                 }
-                class GetUserByIdQuery <<Query>>{
+                record GetUserByIdQuery <<Query>>{
                     -id: UserId
                 }
             }
@@ -170,6 +184,11 @@ package "com.arkenna.indienest.backend.iam"{
                     +IamContextFacadeImpl(AccountCommandService, AccountQueryService, UserCommandService, UserQueryService)
                     +createAccount(userId: Int, email: String, password: String, isActive: Boolean, role: String): Int
                     +createUser(name: String, phoneNumber: String): Int
+                    +updateUser(id: Int, name: String, phoneNumber: String): Int
+                    +fetchAccountById(id: Int): Account
+                    +fetchAllAccounts(): List<Account>
+                    +fetchUserById(id: Int): <User>
+                    +fetchAllUsers(): List<User>
                 }
             }
         }
@@ -178,15 +197,25 @@ package "com.arkenna.indienest.backend.iam"{
         package "rest"{
             package "controllers"{
                 class AuthenticationController <<Controller>>{
+                    -accountCommandService: AccountCommandService
+                    --
+                    +AuthenticationController(AccountCommandService)
                     +signIn(signInResource) : ResponseEntity<AuthenticatedAccountResource>
                     +signUp(signUpResource) : ResponseEntity<AccountResource>
                 }
                 class AccountsController <<Controller>>{
+                    -accountCommandService: AccountCommandService
+                    -accountQueryService: AccountQueryService
+                    --
+                    +AccountsController(AccountCommandService, AccountQueryService)
                     +createAccount(CreateAccountResource): ResponseEntity<AccountResource>
                     +getAllAccounts(): ResponseEntity<List<AccountResource>>
                     +getAccountById(id: Int): ResponseEntity<AccountResource>
                 }
                 class UsersController <<Controller>>{
+                    -userCommandService: UserCommandService
+                    -userQueryService: UserQueryService
+                    +UsersController(UserCommandService, UserQueryService)
                     +createUser(CreateUserResource): ResponseEntity<UserResource>
                     +getAllUsers(): ResponseEntity<List<UserResource>>
                     +getUserById(id: Int): ResponseEntity<UserResource>
@@ -194,7 +223,7 @@ package "com.arkenna.indienest.backend.iam"{
             }
         }
         package "resources"{
-            class AccountResource <<Resource>>{
+            record AccountResource <<Resource>>{
                 +id: Int
                 +userId: Int
                 +email: String
@@ -202,37 +231,37 @@ package "com.arkenna.indienest.backend.iam"{
                 +isActive: Boolean
                 +role: String
             }
-            class UserResource <<Resource>>{
+            record UserResource <<Resource>>{
                 +id: Int,
                 +name: String
                 +phoneNumber: String
             }
-            class CreateAccountResource <<Resource>>{
+            record CreateAccountResource <<Resource>>{
                 +userId: Int
                 +email: String
                 +password: String
                 +role: String
             }
-            class CreateUserResource <<Resource>>{
+            record CreateUserResource <<Resource>>{
                 +name: String
                 +phoneNumber: String
             }
-            class UpdateUserResource <<Resource>>{
+            record UpdateUserResource <<Resource>>{
                 +name: String
                 +phoneNumber: String
             }
-            class SignInResource<<Resource>>{
+            record SignInResource<<Resource>>{
                 +username: String,
                 +email: String,
                 +password: String
             }
-            class SignUpResource<<Resource>>{
+            record SignUpResource<<Resource>>{
                 +username: String,
                 +phoneNumber: String,
                 +email: String,
                 +password: String
             }
-            class AuthenticatedAccountResource{
+            record AuthenticatedAccountResource{
                 +id: Int
                 +email: String,
                 +token: String
@@ -266,42 +295,78 @@ package "com.arkenna.indienest.backend.iam"{
         }
         package "acl"{
             interface IamContextFacade<<ACL>>{
-                -accountCommandService: AccountCommandService
-                -accountQueryService: AccountQueryService
-                -userCommandService: UserCommandService
-                -userQueryService: UserQueryService
                 --
-                +IamContextFacadeImpl(AccountCommandService, AccountQueryService, UserCommandService, UserQueryService)
                 +createAccount(userId: Int, email: String, password: String, isActive: Boolean, role: String): Int
                 +createUser(name: String, phoneNumber: String): Int
+                +updateUser(id: Int, name: String, phoneNumber: String): Int
+                +fetchAccountById(id: Int): Account
+                +fetchAllAccounts(): List<Account>
+                +fetchUserById(id: Int): <User>
+                +fetchAllUsers(): List<User>
             }
         }
     }
 }
 
+'DOMAIN LAYER
+'aggregates
+User --> UserId
+User --> UserName
+User --> PhoneNumber
+User ..> CreateUserCommand
+Account --> AccountId
+Account --> UserId
+Account -->Email
+Account --> Password
+Account --> AccountAvailability
+Account --> AccountType
+Account ..> CreateAccountCommand
+'queries
+GetAccountByIdQuery --> AccountId
+GetUserByIdQuery --> UserId
+'services
+AccountCommandService ..> CreateAccountCommand
+AccountCommandService ..> SignUpCommand
+AccountCommandService ..> SignInCommand
+AccountQueryService ..> GetAllAccountsQuery
+AccountQueryService ..> GetAccountByIdQuery
+UserCommandService ..> CreateUserCommand
+UserCommandService ..> UpdateUserCommand
+UserQueryService ..> GetAllUsersQuery
+UserQueryService ..> GetUserByIdQuery
 
-package "com.arkenna.indienest.backend.shared"{
-    package "infrastructure"{
-        package "persistence"{
-            package "jpa"{
-                package "strategy"{
-                    class SnakeCasePhysicalNamingStrategy{
-                        --
-                        +toPhysicalCatalogName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
-                        +toPhysicalSchemaName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
-                        +toPhysicalTableName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
-                        +toPhysicalSequenceName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
-                        +toPhysicalColumnName(identifier: Identifier, jdbcEnvironment: JdbcEnvironment): Identifier
-                        +toSnakeCase(identifier: Identifier): Identifier
-                        +toPlural(identifier: Identifier): Identifier
-                   }
-                }
-            }
-        }
-    }
+'APPLICATION LAYER
+AccountCommandServiceImpl ..|> AccountCommandService
+AccountCommandServiceImpl --> AccountRepository
+UserCommandServiceImpl --> UserRepository
+AccountQueryServiceImpl --> AccountRepository
+UserQueryServiceImpl --> UserRepository
+IamContextFacadeImpl ..|> IamContextFacade
+IamContextFacadeImpl --> AccountCommandService
+IamContextFacadeImpl --> AccountQueryService
+IamContextFacadeImpl --> UserCommandService
+IamContextFacadeImpl --> UserQueryService
+
+'INTERFACES LAYER
+SignInCommandFromResourceAssembler ..> SignInResource
+SignUpCommandFromResourceAssembler ..> SignUpResource
+CreateAccountCommandFromResourceAssembler ..> CreateAccountResource
+CreateUserCommandFromResourceAssembler ..> CreateUserResource
+UpdateUserCommandFromResourceAssembler ..> UpdateUserResource
+AccountResourceFromEntityAssembler ..> Account
+UserResourceFromEntityAssembler ..> User
+AuthenticatedAccountResourceFromEntityAssembler ..> Account
+AuthenticationController ..> AuthenticatedAccountResource
+AuthenticationController ..> AccountResource
+AuthenticationController --> AccountCommandService
+AccountsController ..> AccountResource
+AccountsController --> AccountCommandService
+AccountsController --> AccountQueryService
+UsersController ..> UserResource
+UsersController --> UserCommandService
+UsersController --> UserQueryService
 
 
-}
 
 
 
