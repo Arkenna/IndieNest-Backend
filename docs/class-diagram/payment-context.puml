@@ -18,7 +18,7 @@ package "com.arkenna.indienest.backend.payment"{
                     +getProfileId(): Int
                     +getGameIds(): Int[]
                     +getPrice(): Float
-                    +getDate(): String
+                    +getCreationDate(): String
                     +updateGameIds(gameIds: Int[]): Void
                     +updatePrice(price: Float): Void
                 }

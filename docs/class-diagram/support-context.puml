@@ -1,0 +1,185 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+package "com.arkenna.indienest.backend.support"{
+    package "domain"{
+        package "model"{
+            package "aggregates"{
+                class Review <<Aggregate root>>{
+                    -id: ReviewId
+                    -userId: UserId
+                    -projectId: ProjectId
+                    -comment: ReviewComment
+                    -rating: Rating
+                    -creationDate: Date
+                    --
+                    +Review(command: CreateReviewCommand)
+                    +getId(): Int
+                    +getUserId(): Int
+                    +getProjectId(): Int
+                    +getComment: String
+                    +getRating: Int
+                    +getCreationDate(): String
+                    +updateComment(comment: String): Void
+                    +updateRating(rating: Int): Void
+                }
+            }
+            package "value objects"{
+                class ReviewId <<Value object>>{
+                    -value: Int
+                }
+                class ReviewComment <<Value object>>{
+                    -value: String
+                }
+                class Rating <<Value object>>{
+                    -value: Int
+                }
+            }
+            package "commands"{
+                record CreateReviewCommand <<Command>>{
+                    -userId: Int
+                    -projectId: Int
+                    -comment: String
+                    -rating: Int
+                }
+            }
+            package "queries"{
+                record GetAllReviewsQuery <<Query>>{
+                }
+                record GetReviewByIdQuery <<Query>>{
+                    -id: ReviewId
+                }
+            }
+        }
+        package "services"{
+            interface ReviewCommandService <<Service>>{
+                +handle(CreateReviewCommand): Optional<Review>
+            }
+            interface ReviewQueryService <<Service>>{
+                +handle(GetAllReviewsQuery): List<Review>
+                +handle(GetReviewByIdQuery): Optional<Review>
+            }
+        }
+    }
+    package "infrastructure"{
+        package "persistence"{
+            package "jpa"{
+                package "repositories"{
+                    interface ReviewRepository <<Repository>>{
+                        +findById(id: Int): Optional<Review>
+                    }
+                }
+            }
+        }
+    }
+    package "application"{
+        package "internal"{
+            package "command services"{
+                class ReviewCommandServiceImpl <<Service>>{
+                    -reviewRepository: ReviewRepository
+                    +handle(CreateReviewCommand): Optional<Review>
+                }
+            }
+            package "query services"{
+                class ReviewQueryServiceImpl <<Service>>{
+                    -reviewRepository: ReviewRepository
+                    +handle(GetAllReviewsQuery): List<Review>
+                    +handle(GetReviewByIdQuery): Optional<Review>
+                }
+            }
+            package "acl" {
+                class SupportContextFacadeImpl <<ACL>>{
+                    -reviewCommandService: ReviewCommandService
+                    -reviewQueryService: ReviewQueryService
+                    --
+                    +SupportContextFacadeImpl(ReviewCommandService, ReviewQueryService)
+                    +createReview(userId: Int, projectId: Int, comment: String, rating: Int): Int
+                    +fetchReviewById(id: Int): Review
+                    +fetchAllReviews(): List<Review>
+                }
+            }
+        }
+    }
+    package "interfaces"{
+        package "rest"{
+            package "controllers"{
+                class ReviewsController <<Controller>>{
+                    -reviewCommandService: ReviewCommandService
+                    -reviewQueryService: ReviewQueryService
+                    --
+                    +ReviewsController(ReviewCommandService, ReviewQueryService)
+                    +createReview(CreateReviewResource): ResponseEntity<ReviewResource>
+                    +getAllReviews(): ResponseEntity<List<ReviewResource>>
+                    +getReviewById(id: Int): ResponseEntity<ReviewResource>
+                }
+            }
+        }
+        package "resources"{
+            record ReviewResource <<Resource>>{
+                +id: Int
+                +userId: Int
+                +projectId: Int
+                +comment: String
+                +rating: Int
+                +creationDate: String
+
+            }
+            record CreateReviewResource <<Resource>>{
+                +userId: Int
+                +projectId: Int
+                +comment: String
+                +rating: Int
+            }
+        }
+        package "transform"{
+            class CreateReviewCommandFromResourceAssembler<<Assembler>>{
+                +toCommandFromResource(createReviewResource: CreateReviewResource): CreateReviewCommand {static}
+            }
+            class ReviewResourceFromEntityAssembler<<Assembler>>{
+                +toResourceFromEntity(review: Review): ReviewResource {static}
+            }
+        }
+        package "acl"{
+            interface SupportContextFacade<<ACL>>{
+                --
+                +createReview(userId: Int, projectId: Int, comment: String, rating: Int): Int
+                +fetchReviewById(id: Int): Review
+                +fetchAllReviews(): List<Review>
+            }
+        }
+    }
+}
+
+'DOMAIN LAYER
+'aggregates
+
+Review --> ReviewId
+Review --> ReviewComment
+Review --> Rating
+Review ..> CreateReviewCommand
+'queries
+GetReviewByIdQuery --> ReviewId
+'services
+ReviewCommandService ..> CreateReviewCommand
+ReviewQueryService ..> GetAllReviewsQuery
+ReviewQueryService ..> GetReviewByIdQuery
+
+
+'APPLICATION LAYER
+ReviewCommandServiceImpl ..|> ReviewCommandService
+ReviewCommandServiceImpl --> ReviewRepository
+ReviewQueryServiceImpl ..|> ReviewQueryService
+ReviewQueryServiceImpl --> ReviewRepository
+SupportContextFacadeImpl ..|> SupportContextFacade
+SupportContextFacadeImpl --> ReviewCommandService
+SupportContextFacadeImpl --> ReviewQueryService
+
+'INTERFACES LAYER
+CreateReviewCommandFromResourceAssembler ..> CreateReviewResource
+ReviewResourceFromEntityAssembler ..> Review
+ReviewsController ..> ReviewResource
+ReviewsController --> ReviewCommandService
+ReviewsController --> ReviewQueryService
+
+@enduml
