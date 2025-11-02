@@ -29,11 +29,26 @@ package "com.arkenna.indienest.backend.shared"{
     }
     package "domain"{
         package "model"{
-            class AuditableAbstractAggregateRoot{
-                -id: Int
-                --
-                +addDomainEvent(event: Object): Void
+            package "aggregates"{
+                class AuditableAbstractAggregateRoot{
+                    -id: Int
+                    --
+                    +addDomainEvent(event: Object): Void
+                }
             }
+            package "value objects"{
+                class Money <<Value object>>{
+                    -amount: Float
+                    -currency: String
+                    +addAmount(amount: Float): Money
+                    -lessAmount(amount: Float): Money
+                }
+                class Rating <<Value object>>{
+                    -value: Int
+                }
+            }
+
+
         }
     }
 }

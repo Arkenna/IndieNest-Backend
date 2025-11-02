@@ -1,0 +1,172 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+package "com.arkenna.indienest.backend.payment"{
+    package "domain"{
+        package "model"{
+            package "aggregates"{
+                class ShoppingCart <<Aggregate root>>{
+                    -id: ShoppingCartId
+                    -profileId: ProfileId
+                    -gameIds: GameId[]
+                    -price: Money
+                    -creationDate: Date
+                    --
+                    +ShoppingCart(command: CreateShoppingCartCommand)
+                    +getId(): Int
+                    +getProfileId(): Int
+                    +getGameIds(): Int[]
+                    +getPrice(): Float
+                    +getCreationDate(): String
+                    +updateGameIds(gameIds: Int[]): Void
+                    +updatePrice(price: Float): Void
+                }
+            }
+            package "value objects"{
+                class ShoppingCartId <<Value object>>{
+                    -value: Int
+                }
+            }
+            package "commands"{
+                record CreateShoppingCartCommand <<Command>>{
+                    -profileId: Int
+                    -gameIds: Int[]
+                    -price: Float
+                }
+            }
+            package "queries"{
+                record GetAllShoppingCartsQuery <<Query>>{
+                }
+                record GetShoppingCartByIdQuery <<Query>>{
+                    -id: ShoppingCartId
+                }
+            }
+        }
+        package "services"{
+            interface ShoppingCartCommandService <<Service>>{
+                +handle(CreateShoppingCartCommand): Optional<ShoppingCart>
+            }
+            interface ShoppingCartQueryService <<Service>>{
+                +handle(GetAllShoppingCartsQuery): List<ShoppingCart>
+                +handle(GetShoppingCartByIdQuery): Optional<ShoppingCart>
+            }
+        }
+    }
+    package "infrastructure"{
+        package "persistence"{
+            package "jpa"{
+                package "repositories"{
+                    interface ShoppingCartRepository <<Repository>>{
+                        +findById(id: Int): Optional<ShoppingCart>
+                    }
+                }
+            }
+        }
+    }
+    package "application"{
+        package "internal"{
+            package "command services"{
+                class ShoppingCartCommandServiceImpl <<Service>>{
+                    -shoppingCartRepository: ShoppingCartRepository
+                    +handle(CreateShoppingCartCommand): Optional<ShoppingCart>
+                }
+            }
+            package "query services"{
+                class ShoppingCartQueryServiceImpl <<Service>>{
+                    -shoppingCartRepository: ShoppingCartRepository
+                    +handle(GetAllShoppingCartsQuery): List<ShoppingCart>
+                    +handle(GetShoppingCartByIdQuery): Optional<ShoppingCart>
+                }
+            }
+            package "acl" {
+                class PaymentContextFacadeImpl <<ACL>>{
+                    -shoppingCartCommandService: ShoppingCartCommandService
+                    -shoppingCartQueryService: ShoppingCartQueryService
+                    --
+                    +PaymentContextFacadeImpl(ShoppingCartCommandService, ShoppingCartQueryService)
+                    +createShoppingCart(profileId: Int, gameIds: Int[], price: Float): Int
+                    +fetchShoppingCartById(id: Int): ShoppingCart
+                    +fetchAllShoppingCarts(): List<ShoppingCart>
+                }
+            }
+        }
+    }
+    package "interfaces"{
+        package "rest"{
+            package "controllers"{
+                class ShoppingCartsController <<Controller>>{
+                    -shoppingCartCommandService: ShoppingCartCommandService
+                    -shoppingCartQueryService: ShoppingCartQueryService
+                    --
+                    +ShoppingCartsController(ShoppingCartCommandService, ShoppingCartQueryService)
+                    +createShoppingCart(CreateShoppingCartResource): ResponseEntity<ShoppingCartResource>
+                    +getAllShoppingCarts(): ResponseEntity<List<ShoppingCartResource>>
+                    +getShoppingCartById(id: Int): ResponseEntity<ShoppingCartResource>
+                }
+            }
+        }
+        package "resources"{
+            record ShoppingCartResource <<Resource>>{
+                +id: Int
+                +profileId: Int
+                +gameIds: Int[]
+                +price: Float
+                +creationDate: String
+
+            }
+            record CreateShoppingCartResource <<Resource>>{
+                +profileId: Int
+                +gameIds: Int[]
+                +price: Float
+            }
+        }
+        package "transform"{
+            class CreateShoppingCartCommandFromResourceAssembler<<Assembler>>{
+                +toCommandFromResource(createShoppingCartResource: CreateShoppingCartResource): CreateShoppingCartCommand {static}
+            }
+            class ShoppingCartResourceFromEntityAssembler<<Assembler>>{
+                +toResourceFromEntity(shoppingCart: ShoppingCart): ShoppingCartResource {static}
+            }
+        }
+        package "acl"{
+            interface PaymentContextFacade<<ACL>>{
+                --
+                +createShoppingCart(profileId: Int, gameIds: Int[], price: Float): Int
+                +fetchShoppingCartById(id: Int): ShoppingCart
+                +fetchAllShoppingCarts(): List<ShoppingCart>
+            }
+        }
+    }
+}
+
+'DOMAIN LAYER
+'aggregates
+
+ShoppingCart --> ShoppingCartId
+ShoppingCart ..> CreateShoppingCartCommand
+'queries
+GetShoppingCartByIdQuery --> ShoppingCartId
+'services
+ShoppingCartCommandService ..> CreateShoppingCartCommand
+ShoppingCartQueryService ..> GetAllShoppingCartsQuery
+ShoppingCartQueryService ..> GetShoppingCartByIdQuery
+
+
+'APPLICATION LAYER
+ShoppingCartCommandServiceImpl ..|> ShoppingCartCommandService
+ShoppingCartCommandServiceImpl --> ShoppingCartRepository
+ShoppingCartQueryServiceImpl ..|> ShoppingCartQueryService
+ShoppingCartQueryServiceImpl --> ShoppingCartRepository
+PaymentContextFacadeImpl ..|> PaymentContextFacade
+PaymentContextFacadeImpl --> ShoppingCartCommandService
+PaymentContextFacadeImpl --> ShoppingCartQueryService
+
+'INTERFACES LAYER
+CreateShoppingCartCommandFromResourceAssembler ..> CreateShoppingCartResource
+ShoppingCartResourceFromEntityAssembler ..> ShoppingCart
+ShoppingCartsController ..> ShoppingCartResource
+ShoppingCartsController --> ShoppingCartCommandService
+ShoppingCartsController --> ShoppingCartQueryService
+
+@enduml
