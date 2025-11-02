@@ -43,6 +43,9 @@ package "com.arkenna.indienest.backend.shared"{
                     +addAmount(amount: Float): Money
                     -lessAmount(amount: Float): Money
                 }
+                class Rating <<Value object>>{
+                    -value: Int
+                }
             }
 
 

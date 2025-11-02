@@ -32,9 +32,6 @@ package "com.arkenna.indienest.backend.support"{
                 class ReviewComment <<Value object>>{
                     -value: String
                 }
-                class Rating <<Value object>>{
-                    -value: Int
-                }
             }
             package "commands"{
                 record CreateReviewCommand <<Command>>{
@@ -156,7 +153,6 @@ package "com.arkenna.indienest.backend.support"{
 
 Review --> ReviewId
 Review --> ReviewComment
-Review --> Rating
 Review ..> CreateReviewCommand
 'queries
 GetReviewByIdQuery --> ReviewId
