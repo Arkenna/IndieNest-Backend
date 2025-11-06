@@ -7,45 +7,43 @@ package "com.arkenna.indienest.backend.support"{
         package "model"{
             package "aggregates"{
                 class Review <<Aggregate root>>{
-                    -id: ReviewId
                     -userId: UserId
                     -projectId: ProjectId
                     -comment: ReviewComment
                     -rating: Rating
-                    -creationDate: Date
                     --
                     +Review(command: CreateReviewCommand)
-                    +getId(): Int
-                    +getUserId(): Int
-                    +getProjectId(): Int
-                    +getComment: String
-                    +getRating: Int
-                    +getCreationDate(): String
                     +updateComment(comment: String): Void
-                    +updateRating(rating: Int): Void
+                    +updateRating(rating: Integer): Void
                 }
             }
             package "value objects"{
-                class ReviewId <<Value object>>{
-                    -value: Int
+                record UserId <<Value object>>{
+                    +userId: Integer
                 }
-                class ReviewComment <<Value object>>{
-                    -value: String
+                record ProjectId <<Value object>>{
+                    +projectId: Integer
+                }
+                record ReviewComment <<Value object>>{
+                    +comment: String
+                }
+                record Rating <<Value object>>{
+                    +rating: Integer
                 }
             }
             package "commands"{
                 record CreateReviewCommand <<Command>>{
-                    -userId: Int
-                    -projectId: Int
-                    -comment: String
-                    -rating: Int
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
                 }
             }
             package "queries"{
                 record GetAllReviewsQuery <<Query>>{
                 }
                 record GetReviewByIdQuery <<Query>>{
-                    -id: ReviewId
+                    -id: Integer
                 }
             }
         }
@@ -64,7 +62,7 @@ package "com.arkenna.indienest.backend.support"{
             package "jpa"{
                 package "repositories"{
                     interface ReviewRepository <<Repository>>{
-                        +findById(id: Int): Optional<Review>
+                        +findById(id: Integer): Optional<Review>
                     }
                 }
             }
@@ -91,9 +89,7 @@ package "com.arkenna.indienest.backend.support"{
                     -reviewQueryService: ReviewQueryService
                     --
                     +SupportContextFacadeImpl(ReviewCommandService, ReviewQueryService)
-                    +createReview(userId: Int, projectId: Int, comment: String, rating: Int): Int
-                    +fetchReviewById(id: Int): Review
-                    +fetchAllReviews(): List<Review>
+                    +createReview(userId: Integer, projectId: Integer, comment: String, rating: Integer): Integer
                 }
             }
         }
@@ -108,25 +104,23 @@ package "com.arkenna.indienest.backend.support"{
                     +ReviewsController(ReviewCommandService, ReviewQueryService)
                     +createReview(CreateReviewResource): ResponseEntity<ReviewResource>
                     +getAllReviews(): ResponseEntity<List<ReviewResource>>
-                    +getReviewById(id: Int): ResponseEntity<ReviewResource>
+                    +getReviewById(id: Integer): ResponseEntity<ReviewResource>
                 }
             }
         }
         package "resources"{
             record ReviewResource <<Resource>>{
-                +id: Int
-                +userId: Int
-                +projectId: Int
+                +id: Integer
+                +userId: Integer
+                +projectId: Integer
                 +comment: String
-                +rating: Int
-                +creationDate: String
-
+                +rating: Integer
             }
             record CreateReviewResource <<Resource>>{
-                +userId: Int
-                +projectId: Int
+                +userId: Integer
+                +projectId: Integer
                 +comment: String
-                +rating: Int
+                +rating: Integer
             }
         }
         package "transform"{
@@ -140,9 +134,7 @@ package "com.arkenna.indienest.backend.support"{
         package "acl"{
             interface SupportContextFacade<<ACL>>{
                 --
-                +createReview(userId: Int, projectId: Int, comment: String, rating: Int): Int
-                +fetchReviewById(id: Int): Review
-                +fetchAllReviews(): List<Review>
+                +createReview(userId: Integer, projectId: Integer, comment: String, rating: Integer): Integer
             }
         }
     }
@@ -151,11 +143,12 @@ package "com.arkenna.indienest.backend.support"{
 'DOMAIN LAYER
 'aggregates
 
-Review --> ReviewId
+Review --> UserId
+Review --> ProjectId
+Review --> Rating
 Review --> ReviewComment
 Review ..> CreateReviewCommand
-'queries
-GetReviewByIdQuery --> ReviewId
+
 'services
 ReviewCommandService ..> CreateReviewCommand
 ReviewQueryService ..> GetAllReviewsQuery

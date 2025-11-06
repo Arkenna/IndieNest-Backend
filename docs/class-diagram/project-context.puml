@@ -7,35 +7,23 @@ package "com.arkenna.indienest.backend.project"{
         package "model"{
             package "aggregates"{
                 abstract class Project <<Aggregate root>>{
-                    -id: ProjectId
                     -authorId: AccountId
                     -name: ProjectName
                     -description: ProjectDescription
                     -rating: Rating
                     -image: ProjectImage
-                    -creationDate: Date
                     --
-                    +getId(): Int
-                    +getAuthorId(): Int
-                    +getName(): String
-                    +getDescription(): String
-                    +getRating(): Int
-                    +getImage(): String
-                    +getCreationDate(): String
                 }
                 class Game <<Aggregate root>> extends Project{
                     -price: Money
                     -category: GameCategory
                     --
                     +Game(command: CreateGameCommand)
-                    +getPrice(): Float
-                    +getCategory(): String
                 }
                 class Art <<Aggregate root>> extends Project{
                     -category: ArtCategory
                     --
                     +Art(command: CreateArtCommand)
-                    +getCategory(): String
                 }
                 class Audio <<Aggregate root>> extends Project{
                     -audioUrl: AudioUrl
@@ -43,23 +31,23 @@ package "com.arkenna.indienest.backend.project"{
                     -category: AudioCategory
                     --
                     +Audio(command: CreateAudioCommand)
-                    +getAudioUrl(): String
-                    +getFormat(): String
-                    +getCategory(): String
                 }
             }
             package "value objects"{
-                class ProjectId <<Value object>>{
-                    -value: Int | Null
+                record AccountId <<Value object>>{
+                    +accountId: Integer
                 }
-                class ProjectName <<Value object>>{
-                    -value: String
+                record ProjectName <<Value object>>{
+                    +name: String
                 }
-                class ProjectDescription <<Value object>>{
-                    -value: String
+                record ProjectDescription <<Value object>>{
+                    +description: String
                 }
-                class ProjectImage <<Value object>>{
-                    -value: String
+                record ProjectImage <<Value object>>{
+                    +image: String
+                }
+                record Rating <<Value object>>{
+                    +rating: Integer
                 }
                 enum GameCategory <<Value object>>{
                     HORROR
@@ -86,57 +74,57 @@ package "com.arkenna.indienest.backend.project"{
                     CONCEPT_ART
                     BACKGROUND_DESIGN
                 }
-                class AudioUrl <<Value object>>{
-                    -value: String
+                record AudioUrl <<Value object>>{
+                    +url: String
                 }
-                class AudioFormat <<Value object>>{
-                    -value: String
+                record AudioFormat <<Value object>>{
+                    +format: String
                 }
             }
             package "commands"{
                 record CreateGameCommand <<Command>>{
-                    -authorId: Int
-                    -name: String
-                    -description: String
-                    -rating: Number
-                    -image: String
-                    -price: Float
-                    -category: String
+                    +authorId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +price: BigDecimal
+                    +category: String
                 }
                 record CreateArtCommand <<Command>>{
-                    -authorId: Int
-                    -name: String
-                    -description: String
-                    -rating: Number
-                    -image: String
-                    -category: String
+                    +authorId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +category: String
                 }
                 record CreateAudioCommand <<Command>>{
-                    -authorId: Int
-                    -name: String
-                    -description: String
-                    -rating: Number
-                    -image: String
-                    -audioUrl: String
-                    -audioFormat: String
-                    -category: String
+                    +authorId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +audioUrl: String
+                    +audioFormat: String
+                    +category: String
                 }
             }
             package "queries"{
                 record GetAllGamesQuery <<Query>>{
                 }
                 record GetGameByIdQuery <<Query>>{
-                    -id: ProjectId
+                    +id: Integer
                 }
                 record GetAllArtsQuery <<Query>>{
                 }
                 record GetArtByIdQuery <<Query>>{
-                    -id: ProjectId
+                    +id: Integer
                 }
                 record GetAllAudiosQuery <<Query>>{
                 }
                 record GetAudioByIdQuery <<Query>>{
-                    -id: ProjectId
+                    -id: Integer
                 }
             }
         }
@@ -169,13 +157,13 @@ package "com.arkenna.indienest.backend.project"{
             package "jpa"{
                 package "repositories"{
                     interface GameRepository <<Repository>>{
-                        +findById(id: Int): Optional<Game>
+                        +findById(id: Integer): Optional<Game>
                     }
                     interface ArtRepository <<Repository>>{
-                        +findById(id: Int): Optional<Art>
+                        +findById(id: Integer): Optional<Art>
                     }
                     interface AudioRepository <<Repository>>{
-                        +findById(id: Int): Optional<Audio>
+                        +findById(id: Integer): Optional<Audio>
                     }
                 }
             }
@@ -224,15 +212,9 @@ package "com.arkenna.indienest.backend.project"{
                     -audioQueryService: AudioQueryService
                     --
                     +ProjectContextFacadeImpl(GameCommandService, GameQueryService, ArtCommandService, ArtQueryService, AudioCommandService, AudioQueryService)
-                    +createGame(authorId: Int, name: String, description: String, rating: Int, image: String, price: Float, category: String): Int
-                    +createArt(authorId: Int, name: String, description: String, rating: Int, image: String, category: String): Int
-                    +createAudio(authorId: Int, name: String, description: String, rating: Int, image: String, audioUrl: String, audioFormat: String, category: String): Int
-                    +fetchGameById(id: Int): Game
-                    +fetchAllGames(): List<Game>
-                    +fetchArtById(id: Int): <Art>
-                    +fetchAllArts(): List<Art>
-                    +fetchAudioById(id: Int): <Audio>
-                    +fetchAllAudios(): List<Audio>
+                    +createGame(authorId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                    +createArt(authorId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                    +createAudio(authorId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
                 }
             }
         }
@@ -247,7 +229,7 @@ package "com.arkenna.indienest.backend.project"{
                     +GamesController(GameCommandService, GameQueryService)
                     +createGame(CreateGameResource): ResponseEntity<GameResource>
                     +getAllGames(): ResponseEntity<List<GameResource>>
-                    +getGameById(id: Int): ResponseEntity<GameResource>
+                    +getGameById(id: Integer): ResponseEntity<GameResource>
                 }
                 class ArtsController <<Controller>>{
                     -artCommandService: ArtCommandService
@@ -256,7 +238,7 @@ package "com.arkenna.indienest.backend.project"{
                     +ArtsController(ArtCommandService, ArtQueryService)
                     +createArt(CreateArtResource): ResponseEntity<ArtResource>
                     +getAllArts(): ResponseEntity<List<ArtResource>>
-                    +getArtById(id: Int): ResponseEntity<ArtResource>
+                    +getArtById(id: Integer): ResponseEntity<ArtResource>
                 }
                 class AudiosController <<Controller>>{
                     -audioCommandService: AudioCommandService
@@ -265,38 +247,38 @@ package "com.arkenna.indienest.backend.project"{
                     +AudiosController(AudioCommandService, AudioQueryService)
                     +createAudio(CreateAudioResource): ResponseEntity<AudioResource>
                     +getAllAudios(): ResponseEntity<List<AudioResource>>
-                    +getAudioById(id: Int): ResponseEntity<AudioResource>
+                    +getAudioById(id: Integer): ResponseEntity<AudioResource>
                 }
             }
         }
         package "resources"{
             record GameResource <<Resource>>{
-                +id: Int
-                +authorId: Int
+                +id: Integer
+                +authorId: Integer
                 +name: ProjectName
                 +description: String
-                +rating: Int
+                +rating: Integer
                 +image: String
                 +creationDate: String
-                +price: Float
+                +price: BigDecimal
                 +category: String
             }
             record ArtResource <<Resource>>{
-                +id: Int
-                +authorId: Int
+                +id: Integer
+                +authorId: Integer
                 +name: ProjectName
                 +description: String
-                +rating: Int
+                +rating: Integer
                 +image: String
                 +creationDate: String
                 +category: String
             }
             record AudioResource <<Resource>>{
-                +id: Int
-                +authorId: Int
+                +id: Integer
+                +authorId: Integer
                 +name: ProjectName
                 +description: String
-                +rating: Int
+                +rating: Integer
                 +image: String
                 +creationDate: String
                 +audioUrl: String
@@ -304,31 +286,31 @@ package "com.arkenna.indienest.backend.project"{
                 +category: String
             }
             record CreateGameResource <<Resource>>{
-                -authorId: Int
-                -name: String
-                -description: String
-                -rating: Number
-                -image: String
-                -price: Float
-                -category: String
+                +authorId: Integer
+                +name: String
+                +description: String
+                +rating: Number
+                +image: String
+                +price: BigDecimal
+                +category: String
             }
             record CreateArtResource <<Resource>>{
-                -authorId: Int
-                -name: String
-                -description: String
-                -rating: Number
-                -image: String
-                -category: String
+                +authorId: Integer
+                +name: String
+                +description: String
+                +rating: Number
+                +image: String
+                +category: String
             }
             record CreateAudioResource <<Resource>>{
-                -authorId: Int
-                -name: String
-                -description: String
-                -rating: Number
-                -image: String
-                -audioUrl: String
+                +authorId: Integer
+                +name: String
+                +description: String
+                +rating: Number
+                +image: String
+                +audioUrl: String
                 +format: String
-                -category: String
+                +category: String
             }
         }
         package "transform"{
@@ -353,15 +335,9 @@ package "com.arkenna.indienest.backend.project"{
         }
         package "acl"{
             interface ProjectContextFacade <<ACL>>{
-                +createGame(authorId: Int, name: String, description: String, rating: Int, image: String, price: Float, category: String): Int
-                +createArt(authorId: Int, name: String, description: String, rating: Int, image: String, category: String): Int
-                +createAudio(authorId: Int, name: String, description: String, rating: Int, image: String, audioUrl: String, audioFormat: String, category: String): Int
-                +fetchGameById(id: Int): Game
-                +fetchAllGames(): List<Game>
-                +fetchArtById(id: Int): <Art>
-                +fetchAllArts(): List<Art>
-                +fetchAudioById(id: Int): <Audio>
-                +fetchAllAudios(): List<Audio>
+                +createGame(authorId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                +createArt(authorId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                +createAudio(authorId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
             }
         }
     }
@@ -369,19 +345,17 @@ package "com.arkenna.indienest.backend.project"{
 
 'DOMAIN LAYER
 'aggregates
-Project --> ProjectId
+Project --> AccountId
 Project --> ProjectName
 Project --> ProjectDescription
 Project --> ProjectImage
+Project --> Rating
 Game --> GameCategory
 Art --> ArtCategory
 Audio --AudioUrl
 Audio --> AudioFormat
 Audio --> AudioCategory
-'queries
-GetGameByIdQuery --> ProjectId
-GetArtByIdQuery --> ProjectId
-GetAudioByIdQuery --> ProjectId
+
 'services
 GameCommandService ..> CreateGameCommand
 GameQueryService ..> GetAllGamesQuery
