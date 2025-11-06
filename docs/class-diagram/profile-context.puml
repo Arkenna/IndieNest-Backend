@@ -7,74 +7,67 @@ package "com.arkenna.indienest.backend.profile"{
         package "model"{
             package "aggregates"{
                 class Portfolio <<Aggregate root>>{
-                    -id: PortfolioId
                     -gameIds: GameId[]
                     -audioIds: AudioId[]
                     -artIds: ArtId[]
-                    -creationDate: Date
                     --
                     +Portfolio(command: CreatePortfolioCommand)
-                    +getId(): Int
-                    +getGameIds(): Int[]
-                    +getAudioIds(): Int[]
-                    +getArtIds(): Int[]
-                    +getCreationDate: String
                 }
                 class Profile <<Aggregate root>>{
-                    -id: ProfileId,
                     -accountId: AccountId
                     -portfolioId: PortfolioId
                     -description: ProfileDescription
                     -image: ProfileImage
-                    -creationDate: Date
                     --
                     +Profile(command: CreateProfileCommand)
-                    +getId(): Int,
-                    +getAccountId(): Int
-                    +getPortfolioId(): Int
-                    +getDescription(): String
-                    +getImage(): String
-                    +getCreationDate(): String
                 }
             }
             package "value objects"{
-                class PortfolioId <<Value object>>{
-                    -value: Int | Null
+                record PortfolioId <<Value object>>{
+                    +portfolioId: Integer | Null
                 }
-                class ProfileId <<Value object>>{
-                    -value: Int
+                record GameId <<Value object>>{
+                    +gameId: Integer
                 }
-                class ProfileDescription <<Value object>>{
-                    -value: String
+                record ArtId <<Value object>>{
+                    +artId: Integer
                 }
-                class ProfileImage <<Value object>>{
-                    -value: String | Null
+                record AudioId <<Value object>>{
+                    +audioId: Integer
                 }
-                class PortfolioImage <<Value object>>{
-                    -value: String
+                record AccountId <<Value object>>{
+                    +accountId: Integer
+                }
+                record ProfileDescription <<Value object>>{
+                    +description: String
+                }
+                record ProfileImage <<Value object>>{
+                    +image: String | Null
+                }
+                record PortfolioImage <<Value object>>{
+                    +image: String
                 }
             }
             package "commands"{
                 record CreatePortfolioCommand <<Command>>{
                 }
                 record CreateProfileCommand <<Command>>{
-                    -description: String
-                    -image: String
-                    -accountId: Int
-                    -portfolioId: Int
-                    -creationDate: String
+                    +description: String
+                    +image: String
+                    +accountId: Integer
+                    +portfolioId: Integer
                 }
             }
             package "queries"{
                 record GetAllPortfoliosQuery <<Query>>{
                 }
                 record GetPortfolioByIdQuery <<Query>>{
-                    -id: PortfolioId
+                    +id: Integer
                 }
                 record GetAllProfilesQuery <<Query>>{
                 }
                 record GetProfileByIdQuery <<Query>>{
-                    -id: ProfileId
+                    +id: Integer
                 }
             }
         }
@@ -100,10 +93,10 @@ package "com.arkenna.indienest.backend.profile"{
             package "jpa"{
                 package "repositories"{
                     interface PortfolioRepository <<Repository>>{
-                        +findById(id: Int): Optional<Portfolio>
+                        +findById(id: Integer): Optional<Portfolio>
                     }
                     interface ProfileRepository <<Repository>>{
-                        +findById(id: Int): Optional<Profile>
+                        +findById(id: Integer): Optional<Profile>
                     }
                 }
             }
@@ -141,12 +134,8 @@ package "com.arkenna.indienest.backend.profile"{
                     -profileQueryService: ProfileQueryService
                     --
                     +ProfileContextFacadeImpl(PortfolioCommandService, PortfolioQueryService, ProfileCommandService, ProfileQueryService)
-                    +createPortfolio(): Int
-                    +createProfile(description: String, image: String, accountId: String, portfolioId: Int): Int
-                    +fetchPortfolioById(id: Int): Portfolio
-                    +fetchAllPortfolios(): List<Portfolio>
-                    +fetchProfileById(id: Int): <Profile>
-                    +fetchAllProfiles(): List<Profile>
+                    +createPortfolio(): Integer
+                    +createProfile(description: String, image: String, accountId: String, portfolioId: Integer): Integer
                 }
             }
         }
@@ -161,7 +150,7 @@ package "com.arkenna.indienest.backend.profile"{
                     +PortfoliosController(PortfolioCommandService, PortfolioQueryService)
                     +createPortfolio(CreatePortfolioResource): ResponseEntity<PortfolioResource>
                     +getAllPortfolios(): ResponseEntity<List<PortfolioResource>>
-                    +getPortfolioById(id: Int): ResponseEntity<PortfolioResource>
+                    +getPortfolioById(id: Integer): ResponseEntity<PortfolioResource>
                 }
                 class ProfilesController <<Controller>>{
                     -profileCommandService: ProfileCommandService
@@ -170,25 +159,23 @@ package "com.arkenna.indienest.backend.profile"{
                     +ProfilesController(ProfileCommandService, ProfileQueryService)
                     +createProfile(CreateProfileResource): ResponseEntity<ProfileResource>
                     +getAllProfiles(): ResponseEntity<List<ProfileResource>>
-                    +getProfileById(id: Int): ResponseEntity<ProfileResource>
+                    +getProfileById(id: Integer): ResponseEntity<ProfileResource>
                 }
             }
         }
         package "resources"{
             record PortfolioResource <<Resource>>{
-                +id: Int
-                +gameIds: Int[]
-                +audioIds: Int[]
-                +artIds: Int[]
-                +creationDate: String
+                +id: Integer
+                +gameIds: Integer[]
+                +audioIds: Integer[]
+                +artIds: Integer[]
             }
             record ProfileResource <<Resource>>{
-                +id: Int,
+                +id: Integer,
                 +description: String
                 +image: String
                 +accountId: String
-                +portfolioId: Int
-                +creationDate: String
+                +portfolioId: Integer
             }
             record CreatePortfolioResource <<Resource>>{
             }
@@ -196,7 +183,7 @@ package "com.arkenna.indienest.backend.profile"{
                 +description: String
                 +image: String
                 +accountId: String
-                +portfolioId: Int
+                +portfolioId: Integer
             }
         }
         package "transform"{
@@ -216,12 +203,8 @@ package "com.arkenna.indienest.backend.profile"{
         package "acl"{
             interface ProfileContextFacade<<ACL>>{
                 --
-                +createPortfolio(userId: Int, title: String, comment: String | Null, image: String | Null): Int
-                +createProfile(description: String, image: String, accountId: String, portfolioId: Int): Int
-                +fetchPortfolioById(id: Int): Portfolio
-                +fetchAllPortfolios(): List<Portfolio>
-                +fetchProfileById(id: Int): <Profile>
-                +fetchAllProfiles(): List<Profile>
+                +createPortfolio(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                +createProfile(description: String, image: String, accountId: String, portfolioId: Integer): Integer
             }
         }
     }
@@ -229,16 +212,16 @@ package "com.arkenna.indienest.backend.profile"{
 
 'DOMAIN LAYER
 'aggregates
-Profile --> ProfileId
 Profile --> ProfileDescription
 Profile --> ProfileImage
 Profile --> PortfolioId
+Profile --> AccountId
 Profile ..> CreateProfileCommand
-Portfolio --> PortfolioId
+Portfolio --> GameId
+Portfolio --> ArtId
+Portfolio --> AudioId
 Portfolio ..> CreatePortfolioCommand
-'queries
-GetPortfolioByIdQuery --> PortfolioId
-GetProfileByIdQuery --> ProfileId
+
 'services
 PortfolioCommandService ..> CreatePortfolioCommand
 PortfolioQueryService ..> GetAllPortfoliosQuery

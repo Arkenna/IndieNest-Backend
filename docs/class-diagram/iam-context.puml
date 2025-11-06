@@ -7,7 +7,6 @@ package "com.arkenna.indienest.backend.iam"{
         package "model"{
             package "aggregates"{
                 class Account <<Aggregate root>>{
-                    -id: AccountId
                     -userId: UserId,
                     -email: Email,
                     -password: Password,
@@ -15,45 +14,32 @@ package "com.arkenna.indienest.backend.iam"{
                     -role: AccountType
                     --
                     +Account(command: CreateAccountCommand)
-                    +getId(): Int
-                    +getUserId(): Int
-                    +getEmail(): String
-                    +getPassword(): String
-                    +getIsActive(): Boolean
-                    +getRole: String
                     +updateEmail(email: String): Void
                     +updatePassword(password: String): Void
                     +updateIsActive(isActive: Boolean): Void
                     +updateRole(role: String): Void
                 }
                 class User <<Aggregate root>>{
-                    -id: UserId,
                     -name: UserName,
                     -phoneNumber: PhoneNumber,
                     --
                     +User(command: CreateUserCommand)
-                    +getId(): Int,
-                    +getName(): String
-                    +getPhoneNumber(): String
                     +updateName(name: String): Void
                     +updatePhoneNumber(phone: String): Void
                 }
             }
             package "value objects"{
-                class AccountId <<Value object>>{
-                    -value: Int
+                record UserId <<Value object>>{
+                    +userId: Integer
                 }
-                class UserId <<Value object>>{
-                    -value: Int
+                record Email <<Value object>>{
+                    +email: String
                 }
-                class Email <<Value object>>{
-                    -value: String
+                record Password <<Value object>>{
+                    +password: String
                 }
-                class Password <<Value object>>{
-                    -value: String
-                }
-                class AccountAvailability <<Value object>>{
-                    -value: Boolean
+                record AccountAvailability <<Value object>>{
+                    +isActive: Boolean
                 }
                 enum AccountType <<Value object>>{
                     STANDARD
@@ -61,29 +47,29 @@ package "com.arkenna.indienest.backend.iam"{
                     ARTIST
                     COMPOSER
                 }
-                class UserName <<Value object>>{
-                    -value: String
+                record UserName <<Value object>>{
+                    +userName: String
                 }
-                class PhoneNumber <<Value object>>{
-                    -value: String
+                record PhoneNumber <<Value object>>{
+                    +phone: String
                 }
             }
             package "commands"{
                 record CreateAccountCommand <<Command>>{
-                    -userId: Int
-                    -email: String
-                    -password: String
-                    -isActive: Boolean
-                    -role: String
+                    +userId: Integer
+                    +email: String
+                    +password: String
+                    +isActive: Boolean
+                    +role: String
                 }
                 record CreateUserCommand <<Command>>{
-                    -name: String,
-                    -phoneNumber: String
+                    +name: String,
+                    +phoneNumber: String
                 }
                 record UpdateUserCommand <<Command>>{
-                    -id: Int
-                    -name: String,
-                    -phoneNumber: String
+                    +id: Integer
+                    +name: String,
+                    +phoneNumber: String
                 }
                 record SignInCommand{
                     +userName: String
@@ -102,12 +88,12 @@ package "com.arkenna.indienest.backend.iam"{
                 record GetAllAccountsQuery <<Query>>{
                 }
                 record GetAccountByIdQuery <<Query>>{
-                    -id: AccountId
+                    -id: Integer
                 }
                 record GetAllUsersQuery <<Query>>{
                 }
                 record GetUserByIdQuery <<Query>>{
-                    -id: UserId
+                    -id: Integer
                 }
             }
         }
@@ -136,10 +122,10 @@ package "com.arkenna.indienest.backend.iam"{
             package "jpa"{
                 package "repositories"{
                     interface AccountRepository <<Repository>>{
-                        +findById(id: Int): Optional<Account>
+                        +findById(id: Integer): Optional<Account>
                     }
                     interface UserRepository <<Repository>>{
-                        +findById(id: Int): Optional<User>
+                        +findById(id: Integer): Optional<User>
                     }
                 }
             }
@@ -182,13 +168,9 @@ package "com.arkenna.indienest.backend.iam"{
                     -userQueryService: UserQueryService
                     --
                     +IamContextFacadeImpl(AccountCommandService, AccountQueryService, UserCommandService, UserQueryService)
-                    +createAccount(userId: Int, email: String, password: String, isActive: Boolean, role: String): Int
-                    +createUser(name: String, phoneNumber: String): Int
-                    +updateUser(id: Int, name: String, phoneNumber: String): Int
-                    +fetchAccountById(id: Int): Account
-                    +fetchAllAccounts(): List<Account>
-                    +fetchUserById(id: Int): <User>
-                    +fetchAllUsers(): List<User>
+                    +createAccount(userId: Integer, email: String, password: String, isActive: Boolean, role: String): Integer
+                    +createUser(name: String, phoneNumber: String): Integer
+                    +updateUser(id: Integer, name: String, phoneNumber: String): Integer
                 }
             }
         }
@@ -210,7 +192,7 @@ package "com.arkenna.indienest.backend.iam"{
                     +AccountsController(AccountCommandService, AccountQueryService)
                     +createAccount(CreateAccountResource): ResponseEntity<AccountResource>
                     +getAllAccounts(): ResponseEntity<List<AccountResource>>
-                    +getAccountById(id: Int): ResponseEntity<AccountResource>
+                    +getAccountById(id: Integer): ResponseEntity<AccountResource>
                 }
                 class UsersController <<Controller>>{
                     -userCommandService: UserCommandService
@@ -219,26 +201,26 @@ package "com.arkenna.indienest.backend.iam"{
                     +createUser(CreateUserResource): ResponseEntity<UserResource>
                     +updateUser(UpdateUserCommand): ResponseEntity<UserResource>
                     +getAllUsers(): ResponseEntity<List<UserResource>>
-                    +getUserById(id: Int): ResponseEntity<UserResource>
+                    +getUserById(id: Integer): ResponseEntity<UserResource>
                 }
             }
         }
         package "resources"{
             record AccountResource <<Resource>>{
-                +id: Int
-                +userId: Int
+                +id: Integer
+                +userId: Integer
                 +email: String
                 +password: String
                 +isActive: Boolean
                 +role: String
             }
             record UserResource <<Resource>>{
-                +id: Int,
+                +id: Integer,
                 +name: String
                 +phoneNumber: String
             }
             record CreateAccountResource <<Resource>>{
-                +userId: Int
+                +userId: Integer
                 +email: String
                 +password: String
                 +role: String
@@ -263,7 +245,7 @@ package "com.arkenna.indienest.backend.iam"{
                 +password: String
             }
             record AuthenticatedAccountResource{
-                +id: Int
+                +id: Integer
                 +email: String,
                 +token: String
             }
@@ -297,13 +279,9 @@ package "com.arkenna.indienest.backend.iam"{
         package "acl"{
             interface IamContextFacade<<ACL>>{
                 --
-                +createAccount(userId: Int, email: String, password: String, isActive: Boolean, role: String): Int
-                +createUser(name: String, phoneNumber: String): Int
-                +updateUser(id: Int, name: String, phoneNumber: String): Int
-                +fetchAccountById(id: Int): Account
-                +fetchAllAccounts(): List<Account>
-                +fetchUserById(id: Int): <User>
-                +fetchAllUsers(): List<User>
+                +createAccount(userId: Integer, email: String, password: String, isActive: Boolean, role: String): Integer
+                +createUser(name: String, phoneNumber: String): Integer
+                +updateUser(id: Integer, name: String, phoneNumber: String): Integer
             }
         }
     }
@@ -315,7 +293,6 @@ User --> UserId
 User --> UserName
 User --> PhoneNumber
 User ..> CreateUserCommand
-Account --> AccountId
 Account --> UserId
 Account -->Email
 Account --> Password
@@ -323,7 +300,6 @@ Account --> AccountAvailability
 Account --> AccountType
 Account ..> CreateAccountCommand
 'queries
-GetAccountByIdQuery --> AccountId
 GetUserByIdQuery --> UserId
 'services
 AccountCommandService ..> CreateAccountCommand

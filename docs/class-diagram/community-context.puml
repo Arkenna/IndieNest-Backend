@@ -7,79 +7,64 @@ package "com.arkenna.indienest.backend.community"{
         package "model"{
             package "aggregates"{
                 class Publication <<Aggregate root>>{
-                    -id: PublicationId
                     -userId: UserId
                     -title: PublicationTitle
                     -comment: PublicationComment
                     -image: PublicationImage
-                    -creationDate: Date
                     --
                     +Publication(command: CreatePublicationCommand)
-                    +getId(): Int
-                    +getUserId(): Int
-                    +getTitle(): String
-                    +getComment(): String
-                    +getImage(): Boolean
-                    +getCreationDate: String
                 }
                 class Answer <<Aggregate root>>{
-                    -id: AnswerId,
                     -userId: UserId,
                     -publicationId: PublicationId
                     -comment: AnswerComment
-                    -creationDate: Date
                     --
                     +Answer(command: CreateAnswerCommand)
-                    +getId(): Int,
-                    +getUserId(): Int
-                    +getPublicationId(): Int
-                    +getComment(): String
-                    +getCreationDate(): String
                 }
             }
             package "value objects"{
-                class PublicationId <<Value object>>{
-                    -value: Int
+                record PublicationId <<Value object>>{
+                    +publicationId: Integer
                 }
-                class AnswerId <<Value object>>{
-                    -value: Int
+                record UserId <<Value object>>{
+                    +userId: Integer
                 }
-                class PublicationTitle <<Value object>>{
-                    -value: String
+                record PublicationTitle <<Value object>>{
+                    +title: String
                 }
-                class PublicationComment <<Value object>>{
-                    -value: String | Null
+                record PublicationComment <<Value object>>{
+                    +comment: String | Null
                 }
-                class PublicationImage <<Value object>>{
-                    -value: String | Null
+                record PublicationImage <<Value object>>{
+                    +image: String | Null
                 }
-                class AnswerComment <<Value object>>{
-                    -value: String
+                record AnswerComment <<Value object>>{
+                    +comment: String
                 }
             }
             package "commands"{
                 record CreatePublicationCommand <<Command>>{
-                    -userId: Int
-                    -title: String | Null
-                    -comment: String | Null
-                    -image: String | Null
+                    +userId: Integer
+                    +title: String
+                    +comment: String | Null
+                    +image: String | Null
                 }
                 record CreateAnswerCommand <<Command>>{
-                    -userId: Int
-                    -publicationId: Int
-                    -comment: String
+                    +userId: Integer
+                    +publicationId: Integer
+                    +comment: String
                 }
             }
             package "queries"{
                 record GetAllPublicationsQuery <<Query>>{
                 }
                 record GetPublicationByIdQuery <<Query>>{
-                    -id: PublicationId
+                    +id: Integer
                 }
                 record GetAllAnswersQuery <<Query>>{
                 }
                 record GetAnswerByIdQuery <<Query>>{
-                    -id: AnswerId
+                    +id: Integer
                 }
             }
         }
@@ -105,10 +90,10 @@ package "com.arkenna.indienest.backend.community"{
             package "jpa"{
                 package "repositories"{
                     interface PublicationRepository <<Repository>>{
-                        +findById(id: Int): Optional<Publication>
+                        +findById(id: Integer): Optional<Publication>
                     }
                     interface AnswerRepository <<Repository>>{
-                        +findById(id: Int): Optional<Answer>
+                        +findById(id: Integer): Optional<Answer>
                     }
                 }
             }
@@ -146,12 +131,8 @@ package "com.arkenna.indienest.backend.community"{
                     -answerQueryService: AnswerQueryService
                     --
                     +CommunityContextFacadeImpl(PublicationCommandService, PublicationQueryService, AnswerCommandService, AnswerQueryService)
-                    +createPublication(userId: Int, title: String, comment: String | Null, image: String | Null): Int
-                    +createAnswer(userId: Int, publicationId: Int, comment: String): Int
-                    +fetchPublicationById(id: Int): Publication
-                    +fetchAllPublications(): List<Publication>
-                    +fetchAnswerById(id: Int): <Answer>
-                    +fetchAllAnswers(): List<Answer>
+                    +createPublication(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                    +createAnswer(userId: Integer, publicationId: Integer, comment: String): Integer
                 }
             }
         }
@@ -166,7 +147,7 @@ package "com.arkenna.indienest.backend.community"{
                     +PublicationsController(PublicationCommandService, PublicationQueryService)
                     +createPublication(CreatePublicationResource): ResponseEntity<PublicationResource>
                     +getAllPublications(): ResponseEntity<List<PublicationResource>>
-                    +getPublicationById(id: Int): ResponseEntity<PublicationResource>
+                    +getPublicationById(id: Integer): ResponseEntity<PublicationResource>
                 }
                 class AnswersController <<Controller>>{
                     -answerCommandService: AnswerCommandService
@@ -175,33 +156,33 @@ package "com.arkenna.indienest.backend.community"{
                     +AnswersController(AnswerCommandService, AnswerQueryService)
                     +createAnswer(CreateAnswerResource): ResponseEntity<AnswerResource>
                     +getAllAnswers(): ResponseEntity<List<AnswerResource>>
-                    +getAnswerById(id: Int): ResponseEntity<AnswerResource>
+                    +getAnswerById(id: Integer): ResponseEntity<AnswerResource>
                 }
             }
         }
         package "resources"{
             record PublicationResource <<Resource>>{
-                +id: Int
-                +userId: Int
+                +id: Integer
+                +userId: Integer
                 +title: String
                 +comment: String | Null
                 +image: String | Null
             }
             record AnswerResource <<Resource>>{
-                +id: Int,
-                +userId: Int
-                +publicationId: Int
+                +id: Integer,
+                +userId: Integer
+                +publicationId: Integer
                 +comment: String
             }
             record CreatePublicationResource <<Resource>>{
-                +userId: Int
+                +userId: Integer
                 +title: String
                 +comment: String | Null
                 +image: String | Null
             }
             record CreateAnswerResource <<Resource>>{
-                +userId: Int
-                +publicationId: Int
+                +userId: Integer
+                +publicationId: Integer
                 +comment: String
             }
         }
@@ -222,12 +203,8 @@ package "com.arkenna.indienest.backend.community"{
         package "acl"{
             interface CommunityContextFacade<<ACL>>{
                 --
-                +createPublication(userId: Int, title: String, comment: String | Null, image: String | Null): Int
-                +createAnswer(userId: Int, publicationId: Int, comment: String): Int
-                +fetchPublicationById(id: Int): Publication
-                +fetchAllPublications(): List<Publication>
-                +fetchAnswerById(id: Int): <Answer>
-                +fetchAllAnswers(): List<Answer>
+                +createPublication(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                +createAnswer(userId: Integer, publicationId: Integer, comment: String): Integer
             }
         }
     }
@@ -235,18 +212,18 @@ package "com.arkenna.indienest.backend.community"{
 
 'DOMAIN LAYER
 'aggregates
-Answer --> AnswerId
 Answer --> PublicationId
+Answer --> UserId
 Answer --> AnswerComment
 Answer ..> CreateAnswerCommand
 Publication --> PublicationId
+Publication --> UserId
 Publication --> PublicationTitle
 Publication -->PublicationComment
 Publication --> PublicationImage
 Publication ..> CreatePublicationCommand
 'queries
 GetPublicationByIdQuery --> PublicationId
-GetAnswerByIdQuery --> AnswerId
 'services
 PublicationCommandService ..> CreatePublicationCommand
 PublicationQueryService ..> GetAllPublicationsQuery

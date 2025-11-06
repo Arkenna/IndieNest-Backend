@@ -31,20 +31,20 @@ package "com.arkenna.indienest.backend.shared"{
         package "model"{
             package "aggregates"{
                 class AuditableAbstractAggregateRoot{
-                    -id: Int
+                    -id: Integer
+                    +createdAt: Date
+                    +updatedAt: Date
                     --
                     +addDomainEvent(event: Object): Void
                 }
             }
             package "value objects"{
-                class Money <<Value object>>{
-                    -amount: Float
-                    -currency: String
-                    +addAmount(amount: Float): Money
-                    -lessAmount(amount: Float): Money
-                }
-                class Rating <<Value object>>{
-                    -value: Int
+                record Money <<Value object>>{
+                   +amount: BigDecimal
+                   +currency: String
+                   --
+                   +addAmount(amount: BigDecimal): Money
+                   +lessAmount(amount: BigDecimal): Money
                 }
             }
 

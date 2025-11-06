@@ -7,39 +7,32 @@ package "com.arkenna.indienest.backend.payment"{
         package "model"{
             package "aggregates"{
                 class ShoppingCart <<Aggregate root>>{
-                    -id: ShoppingCartId
                     -profileId: ProfileId
                     -gameIds: GameId[]
                     -price: Money
-                    -creationDate: Date
                     --
                     +ShoppingCart(command: CreateShoppingCartCommand)
-                    +getId(): Int
-                    +getProfileId(): Int
-                    +getGameIds(): Int[]
-                    +getPrice(): Float
-                    +getCreationDate(): String
-                    +updateGameIds(gameIds: Int[]): Void
-                    +updatePrice(price: Float): Void
+                    +updateGameIds(gameIds: Integer[]): Void
+                    +updatePrice(price: BigDecimal): Void
                 }
             }
             package "value objects"{
-                class ShoppingCartId <<Value object>>{
-                    -value: Int
+                record GameId <<Value object>>{
+                    +gameId: Integer
                 }
             }
             package "commands"{
                 record CreateShoppingCartCommand <<Command>>{
-                    -profileId: Int
-                    -gameIds: Int[]
-                    -price: Float
+                    +profileId: Integer
+                    +gameIds: Integer[]
+                    +price: BigDecimal
                 }
             }
             package "queries"{
                 record GetAllShoppingCartsQuery <<Query>>{
                 }
                 record GetShoppingCartByIdQuery <<Query>>{
-                    -id: ShoppingCartId
+                    +id: Integer
                 }
             }
         }
@@ -58,7 +51,7 @@ package "com.arkenna.indienest.backend.payment"{
             package "jpa"{
                 package "repositories"{
                     interface ShoppingCartRepository <<Repository>>{
-                        +findById(id: Int): Optional<ShoppingCart>
+                        +findById(id: Integer): Optional<ShoppingCart>
                     }
                 }
             }
@@ -85,9 +78,7 @@ package "com.arkenna.indienest.backend.payment"{
                     -shoppingCartQueryService: ShoppingCartQueryService
                     --
                     +PaymentContextFacadeImpl(ShoppingCartCommandService, ShoppingCartQueryService)
-                    +createShoppingCart(profileId: Int, gameIds: Int[], price: Float): Int
-                    +fetchShoppingCartById(id: Int): ShoppingCart
-                    +fetchAllShoppingCarts(): List<ShoppingCart>
+                    +createShoppingCart(profileId: Integer, gameIds: Integer[], price: BigDecimal): Integer
                 }
             }
         }
@@ -102,23 +93,22 @@ package "com.arkenna.indienest.backend.payment"{
                     +ShoppingCartsController(ShoppingCartCommandService, ShoppingCartQueryService)
                     +createShoppingCart(CreateShoppingCartResource): ResponseEntity<ShoppingCartResource>
                     +getAllShoppingCarts(): ResponseEntity<List<ShoppingCartResource>>
-                    +getShoppingCartById(id: Int): ResponseEntity<ShoppingCartResource>
+                    +getShoppingCartById(id: Integer): ResponseEntity<ShoppingCartResource>
                 }
             }
         }
         package "resources"{
             record ShoppingCartResource <<Resource>>{
-                +id: Int
-                +profileId: Int
-                +gameIds: Int[]
-                +price: Float
-                +creationDate: String
+                +id: Integer
+                +profileId: Integer
+                +gameIds: Integer[]
+                +price: BigDecimal
 
             }
             record CreateShoppingCartResource <<Resource>>{
-                +profileId: Int
-                +gameIds: Int[]
-                +price: Float
+                +profileId: Integer
+                +gameIds: Integer[]
+                +price: BigDecimal
             }
         }
         package "transform"{
@@ -132,9 +122,7 @@ package "com.arkenna.indienest.backend.payment"{
         package "acl"{
             interface PaymentContextFacade<<ACL>>{
                 --
-                +createShoppingCart(profileId: Int, gameIds: Int[], price: Float): Int
-                +fetchShoppingCartById(id: Int): ShoppingCart
-                +fetchAllShoppingCarts(): List<ShoppingCart>
+                +createShoppingCart(profileId: Integer, gameIds: Integer[], price: BigDecimal): Integer
             }
         }
     }
@@ -142,11 +130,7 @@ package "com.arkenna.indienest.backend.payment"{
 
 'DOMAIN LAYER
 'aggregates
-
-ShoppingCart --> ShoppingCartId
 ShoppingCart ..> CreateShoppingCartCommand
-'queries
-GetShoppingCartByIdQuery --> ShoppingCartId
 'services
 ShoppingCartCommandService ..> CreateShoppingCartCommand
 ShoppingCartQueryService ..> GetAllShoppingCartsQuery
