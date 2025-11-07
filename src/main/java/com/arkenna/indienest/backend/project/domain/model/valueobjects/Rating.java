@@ -11,6 +11,6 @@ public record Rating(Integer rating) {
      */
     public Rating {
         if(rating < 0)
-            throw new IllegalArgumentException("Invalid rating");
+            throw new IllegalArgumentException("Rating cannot be less than 0");
     }
 }
