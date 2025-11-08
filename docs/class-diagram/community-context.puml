@@ -146,47 +146,48 @@ package "com.arkenna.indienest.backend.community"{
                     +getAnswerById(id: Integer): ResponseEntity<AnswerResource>
                 }
             }
+            package "resources"{
+                record PublicationResource <<Resource>>{
+                    +id: Integer
+                    +userId: Integer
+                    +title: String
+                    +comment: String | Null
+                    +image: String | Null
+                }
+                record AnswerResource <<Resource>>{
+                    +id: Integer,
+                    +userId: Integer
+                    +publicationId: Integer
+                    +comment: String
+                }
+                record CreatePublicationResource <<Resource>>{
+                    +userId: Integer
+                    +title: String
+                    +comment: String | Null
+                    +image: String | Null
+                }
+                record CreateAnswerResource <<Resource>>{
+                    +userId: Integer
+                    +publicationId: Integer
+                    +comment: String
+                }
+            }
+            package "transform"{
+                class CreatePublicationCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createPublicationResource: CreatePublicationResource): CreatePublicationCommand {static}
+                }
+                class CreateAnswerCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createAnswerResource: (CreateAnswerResource): CreateAnswerCommand {static}
+                }
+                class PublicationResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(publication: Publication): PublicationResource {static}
+                }
+                class AnswerResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(answer: Answer): AnswerResource {static}
+                }
+            }
         }
-        package "resources"{
-            record PublicationResource <<Resource>>{
-                +id: Integer
-                +userId: Integer
-                +title: String
-                +comment: String | Null
-                +image: String | Null
-            }
-            record AnswerResource <<Resource>>{
-                +id: Integer,
-                +userId: Integer
-                +publicationId: Integer
-                +comment: String
-            }
-            record CreatePublicationResource <<Resource>>{
-                +userId: Integer
-                +title: String
-                +comment: String | Null
-                +image: String | Null
-            }
-            record CreateAnswerResource <<Resource>>{
-                +userId: Integer
-                +publicationId: Integer
-                +comment: String
-            }
-        }
-        package "transform"{
-            class CreatePublicationCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createPublicationResource: CreatePublicationResource): CreatePublicationCommand {static}
-            }
-            class CreateAnswerCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createAnswerResource: (CreateAnswerResource): CreateAnswerCommand {static}
-            }
-            class PublicationResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(publication: Publication): PublicationResource {static}
-            }
-            class AnswerResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(answer: Answer): AnswerResource {static}
-            }
-        }
+
         package "acl"{
             interface CommunityContextFacade<<ACL>>{
                 --

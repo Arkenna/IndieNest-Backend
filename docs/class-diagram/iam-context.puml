@@ -202,78 +202,79 @@ package "com.arkenna.indienest.backend.iam"{
                     +getUserById(id: Integer): ResponseEntity<UserResource>
                 }
             }
+            package "resources"{
+                record AccountResource <<Resource>>{
+                    +id: Integer
+                    +userId: Integer
+                    +email: String
+                    +password: String
+                    +isActive: Boolean
+                    +role: String
+                }
+                record UserResource <<Resource>>{
+                    +id: Integer,
+                    +name: String
+                    +phoneNumber: String
+                }
+                record CreateAccountResource <<Resource>>{
+                    +userId: Integer
+                    +email: String
+                    +password: String
+                    +role: String
+                }
+                record CreateUserResource <<Resource>>{
+                    +name: String
+                    +phoneNumber: String
+                }
+                record UpdateUserResource <<Resource>>{
+                    +name: String
+                    +phoneNumber: String
+                }
+                record SignInResource<<Resource>>{
+                    +username: String,
+                    +email: String,
+                    +password: String
+                }
+                record SignUpResource<<Resource>>{
+                    +username: String,
+                    +phoneNumber: String,
+                    +email: String,
+                    +password: String
+                }
+                record AuthenticatedAccountResource{
+                    +id: Integer
+                    +email: String,
+                    +token: String
+                }
+            }
+            package "transform"{
+                class SignInCommandFromResourceAssembler <<Assembler>>{
+                    +toCommandFromResource(signInResource: SignInResource): SignInCommand {static}
+                }
+                class SignUpCommandFromResourceAssembler <<Assembler>>{
+                    +toCommandFromResource(resource: SignUpResource): SignUpCommand {static}
+                }
+                class CreateAccountCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createAccountResource: CreateAccountResource): CreateAccountCommand {static}
+                }
+                class CreateUserCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createUserResource: (CreateUserResource): CreateUserCommand {static}
+                }
+                class UpdateUserCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(updateUserResource: UpdateUserResource): UpdateUserCommand {static}
+                }
+                class AuthenticatedAccountResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(account: Account, token: String): AuthenticatedAccountResource {static}
+                }
+                class AccountResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(account: Account): AccountResource {static}
+                }
+                class UserResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(user: User): UserResource {static}
+                }
+            }
         }
-        package "resources"{
-            record AccountResource <<Resource>>{
-                +id: Integer
-                +userId: Integer
-                +email: String
-                +password: String
-                +isActive: Boolean
-                +role: String
-            }
-            record UserResource <<Resource>>{
-                +id: Integer,
-                +name: String
-                +phoneNumber: String
-            }
-            record CreateAccountResource <<Resource>>{
-                +userId: Integer
-                +email: String
-                +password: String
-                +role: String
-            }
-            record CreateUserResource <<Resource>>{
-                +name: String
-                +phoneNumber: String
-            }
-            record UpdateUserResource <<Resource>>{
-                +name: String
-                +phoneNumber: String
-            }
-            record SignInResource<<Resource>>{
-                +username: String,
-                +email: String,
-                +password: String
-            }
-            record SignUpResource<<Resource>>{
-                +username: String,
-                +phoneNumber: String,
-                +email: String,
-                +password: String
-            }
-            record AuthenticatedAccountResource{
-                +id: Integer
-                +email: String,
-                +token: String
-            }
-        }
-        package "transform"{
-            class SignInCommandFromResourceAssembler <<Assembler>>{
-                +toCommandFromResource(signInResource: SignInResource): SignInCommand {static}
-            }
-            class SignUpCommandFromResourceAssembler <<Assembler>>{
-                +toCommandFromResource(resource: SignUpResource): SignUpCommand {static}
-            }
-            class CreateAccountCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createAccountResource: CreateAccountResource): CreateAccountCommand {static}
-            }
-            class CreateUserCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createUserResource: (CreateUserResource): CreateUserCommand {static}
-            }
-            class UpdateUserCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(updateUserResource: UpdateUserResource): UpdateUserCommand {static}
-            }
-            class AuthenticatedAccountResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(account: Account, token: String): AuthenticatedAccountResource {static}
-            }
-            class AccountResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(account: Account): AccountResource {static}
-            }
-            class UserResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(user: User): UserResource {static}
-            }
-        }
+
         package "acl"{
             interface IamContextFacade<<ACL>>{
                 --

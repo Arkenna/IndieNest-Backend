@@ -95,28 +95,29 @@ package "com.arkenna.indienest.backend.payment"{
                     +getShoppingCartById(id: Integer): ResponseEntity<ShoppingCartResource>
                 }
             }
-        }
-        package "resources"{
-            record ShoppingCartResource <<Resource>>{
-                +id: Integer
-                +profileId: Integer
-                +gameIds: Integer[]
-                +price: BigDecimal
+            package "resources"{
+                record ShoppingCartResource <<Resource>>{
+                    +id: Integer
+                    +profileId: Integer
+                    +gameIds: Integer[]
+                    +price: BigDecimal
 
+                }
+                record CreateShoppingCartResource <<Resource>>{
+                    +profileId: Integer
+                    +gameIds: Integer[]
+                    +price: BigDecimal
+                }
             }
-            record CreateShoppingCartResource <<Resource>>{
-                +profileId: Integer
-                +gameIds: Integer[]
-                +price: BigDecimal
+            package "transform"{
+                class CreateShoppingCartCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createShoppingCartResource: CreateShoppingCartResource): CreateShoppingCartCommand {static}
+                }
+                class ShoppingCartResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(shoppingCart: ShoppingCart): ShoppingCartResource {static}
+                }
             }
-        }
-        package "transform"{
-            class CreateShoppingCartCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createShoppingCartResource: CreateShoppingCartResource): CreateShoppingCartCommand {static}
-            }
-            class ShoppingCartResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(shoppingCart: ShoppingCart): ShoppingCartResource {static}
-            }
+
         }
         package "acl"{
             interface PaymentContextFacade<<ACL>>{

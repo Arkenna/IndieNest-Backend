@@ -106,30 +106,31 @@ package "com.arkenna.indienest.backend.support"{
                     +getReviewById(id: Integer): ResponseEntity<ReviewResource>
                 }
             }
+            package "resources"{
+                record ReviewResource <<Resource>>{
+                    +id: Integer
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+                record CreateReviewResource <<Resource>>{
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+            }
+            package "transform"{
+                class CreateReviewCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createReviewResource: CreateReviewResource): CreateReviewCommand {static}
+                }
+                class ReviewResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(review: Review): ReviewResource {static}
+                }
+            }
         }
-        package "resources"{
-            record ReviewResource <<Resource>>{
-                +id: Integer
-                +userId: Integer
-                +projectId: Integer
-                +comment: String
-                +rating: Integer
-            }
-            record CreateReviewResource <<Resource>>{
-                +userId: Integer
-                +projectId: Integer
-                +comment: String
-                +rating: Integer
-            }
-        }
-        package "transform"{
-            class CreateReviewCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createReviewResource: CreateReviewResource): CreateReviewCommand {static}
-            }
-            class ReviewResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(review: Review): ReviewResource {static}
-            }
-        }
+
         package "acl"{
             interface SupportContextFacade<<ACL>>{
                 --

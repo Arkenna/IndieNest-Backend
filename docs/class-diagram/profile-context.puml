@@ -160,44 +160,45 @@ package "com.arkenna.indienest.backend.profile"{
                     +getProfileById(id: Integer): ResponseEntity<ProfileResource>
                 }
             }
+            package "resources"{
+                record PortfolioResource <<Resource>>{
+                    +id: Integer
+                    +gameIds: Integer[]
+                    +audioIds: Integer[]
+                    +artIds: Integer[]
+                }
+                record ProfileResource <<Resource>>{
+                    +id: Integer,
+                    +description: String
+                    +image: String
+                    +accountId: String
+                    +portfolioId: Integer
+                }
+                record CreatePortfolioResource <<Resource>>{
+                }
+                record CreateProfileResource <<Resource>>{
+                    +description: String
+                    +image: String
+                    +accountId: String
+                    +portfolioId: Integer
+                }
+            }
+            package "transform"{
+                class CreatePortfolioCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createPortfolioResource: CreatePortfolioResource): CreatePortfolioCommand {static}
+                }
+                class CreateProfileCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createProfileResource: (CreateProfileResource): CreateProfileCommand {static}
+                }
+                class PortfolioResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(portfolio: Portfolio): PortfolioResource {static}
+                }
+                class ProfileResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(profile: Profile): ProfileResource {static}
+                }
+            }
         }
-        package "resources"{
-            record PortfolioResource <<Resource>>{
-                +id: Integer
-                +gameIds: Integer[]
-                +audioIds: Integer[]
-                +artIds: Integer[]
-            }
-            record ProfileResource <<Resource>>{
-                +id: Integer,
-                +description: String
-                +image: String
-                +accountId: String
-                +portfolioId: Integer
-            }
-            record CreatePortfolioResource <<Resource>>{
-            }
-            record CreateProfileResource <<Resource>>{
-                +description: String
-                +image: String
-                +accountId: String
-                +portfolioId: Integer
-            }
-        }
-        package "transform"{
-            class CreatePortfolioCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createPortfolioResource: CreatePortfolioResource): CreatePortfolioCommand {static}
-            }
-            class CreateProfileCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createProfileResource: (CreateProfileResource): CreateProfileCommand {static}
-            }
-            class PortfolioResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(portfolio: Portfolio): PortfolioResource {static}
-            }
-            class ProfileResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(profile: Profile): ProfileResource {static}
-            }
-        }
+
         package "acl"{
             interface ProfileContextFacade<<ACL>>{
                 --
