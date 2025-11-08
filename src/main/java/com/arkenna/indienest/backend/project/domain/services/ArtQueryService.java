@@ -7,6 +7,9 @@ import com.arkenna.indienest.backend.project.domain.model.queries.GetArtByIdQuer
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Art Query Service
+ */
 public interface ArtQueryService {
     
     /**
