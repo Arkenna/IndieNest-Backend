@@ -72,14 +72,13 @@ package "com.arkenna.indienest.backend.payment"{
                     +handle(GetShoppingCartByIdQuery): Optional<ShoppingCart>
                 }
             }
-            package "acl" {
-                class PaymentContextFacadeImpl <<ACL>>{
-                    -shoppingCartCommandService: ShoppingCartCommandService
-                    -shoppingCartQueryService: ShoppingCartQueryService
-                    --
-                    +PaymentContextFacadeImpl(ShoppingCartCommandService, ShoppingCartQueryService)
-                    +createShoppingCart(profileId: Integer, gameIds: Integer[], price: BigDecimal): Integer
-                }
+        }
+        package "acl" {
+            class PaymentContextFacadeImpl <<ACL>>{
+                -shoppingCartCommandService: ShoppingCartCommandService
+                --
+                +PaymentContextFacadeImpl(ShoppingCartCommandService)
+                +createShoppingCart(profileId: Integer, gameIds: Integer[], price: BigDecimal): Integer
             }
         }
     }

@@ -202,20 +202,17 @@ package "com.arkenna.indienest.backend.project"{
                     +handle(GetAudioByIdQuery): Optional<Audio>
                 }
             }
-            package "acl" {
-                class ProjectContextFacadeImpl <<ACL>>{
-                    -gameCommandService: GameCommandService
-                    -gameQueryService: GameQueryService
-                    -artCommandService: ArtCommandService
-                    -artQueryService: ArtQueryService
-                    -audioCommandService: AudioCommandService
-                    -audioQueryService: AudioQueryService
-                    --
-                    +ProjectContextFacadeImpl(GameCommandService, GameQueryService, ArtCommandService, ArtQueryService, AudioCommandService, AudioQueryService)
-                    +createGame(authorId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
-                    +createArt(authorId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
-                    +createAudio(authorId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
-                }
+        }
+        package "acl" {
+            class ProjectContextFacadeImpl <<ACL>>{
+                -gameCommandService: GameCommandService
+                -artCommandService: ArtCommandService
+                -audioCommandService: AudioCommandService
+                --
+                +ProjectContextFacadeImpl(GameCommandService, ArtCommandService, AudioCommandService)
+                +createGame(authorId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                +createArt(authorId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                +createAudio(authorId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
             }
         }
     }

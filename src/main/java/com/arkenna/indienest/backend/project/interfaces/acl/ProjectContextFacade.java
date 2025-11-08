@@ -28,7 +28,7 @@ public interface ProjectContextFacade {
 
     /**
      * Create a new Art
-     * @param authorId The Author Account Id
+     * @param accountId The Author Account Id
      * @param name The Project Name
      * @param description The Project Description
      * @param rating The Project Rating
@@ -36,7 +36,7 @@ public interface ProjectContextFacade {
      * @param category The Art Category
      * @return The Art id
      */
-    Integer createArt(Integer authorId,
+    Integer createArt(Integer accountId,
                       String name,
                       String description,
                       Integer rating,
@@ -45,7 +45,7 @@ public interface ProjectContextFacade {
 
     /**
      *  Create a new Audio
-     * @param authorId The Author Account Id
+     * @param accountId The Author Account Id
      * @param name The Project Name
      * @param description The Project Description
      * @param rating The Project Rating
@@ -55,7 +55,7 @@ public interface ProjectContextFacade {
      * @param category The Audio Category
      * @return The Audio Id
      */
-    Integer createAudio(Integer authorId,
+    Integer createAudio(Integer accountId,
                         String name,
                         String description,
                         Integer rating,

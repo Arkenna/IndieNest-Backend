@@ -85,19 +85,8 @@ package "com.arkenna.indienest.backend.community"{
             }
         }
     }
-    package "infrastructure"{
-        package "persistence"{
-            package "jpa"{
-                package "repositories"{
-                    interface PublicationRepository <<Repository>>{
-                        +existsByUserIdAndTitle(UserId, PublicationTitle): boolean
-                    }
-                    interface AnswerRepository <<Repository>>{
-                        +existsByUserIdAndComment(UserId, AnswerComment): boolean                    }
-                }
-            }
-        }
-    }
+
+
     package "application"{
         package "internal"{
             package "command services"{
@@ -122,20 +111,19 @@ package "com.arkenna.indienest.backend.community"{
                     +handle(GetAnswerByIdQuery): Optional<Answer>
                 }
             }
-            package "acl" {
-                class CommunityContextFacadeImpl <<ACL>>{
-                    -publicationCommandService: PublicationCommandService
-                    -publicationQueryService: PublicationQueryService
-                    -answerCommandService: AnswerCommandService
-                    -answerQueryService: AnswerQueryService
-                    --
-                    +CommunityContextFacadeImpl(PublicationCommandService, PublicationQueryService, AnswerCommandService, AnswerQueryService)
-                    +createPublication(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
-                    +createAnswer(userId: Integer, publicationId: Integer, comment: String): Integer
-                }
+        }
+        package "acl" {
+            class CommunityContextFacadeImpl <<ACL>>{
+                -publicationCommandService: PublicationCommandService
+                -answerCommandService: AnswerCommandService
+                --
+                +CommunityContextFacadeImpl(PublicationCommandService, AnswerCommandService)
+                +createPublication(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                +createAnswer(userId: Integer, publicationId: Integer, comment: String): Integer
             }
         }
     }
+
     package "interfaces"{
         package "rest"{
             package "controllers"{
@@ -207,6 +195,20 @@ package "com.arkenna.indienest.backend.community"{
             }
         }
     }
+
+    package "infrastructure"{
+            package "persistence"{
+                package "jpa"{
+                    package "repositories"{
+                        interface PublicationRepository <<Repository>>{
+                            +existsByUserIdAndTitle(UserId, PublicationTitle): boolean
+                        }
+                        interface AnswerRepository <<Repository>>{
+                            +existsByUserIdAndComment(UserId, AnswerComment): boolean                    }
+                    }
+                }
+            }
+        }
 }
 
 'DOMAIN LAYER

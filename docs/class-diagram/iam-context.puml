@@ -160,18 +160,16 @@ package "com.arkenna.indienest.backend.iam"{
                     +handle(GetUserByIdQuery): Optional<User>
                 }
             }
-            package "acl" {
-                class IamContextFacadeImpl <<ACL>>{
-                    -accountCommandService: AccountCommandService
-                    -accountQueryService: AccountQueryService
-                    -userCommandService: UserCommandService
-                    -userQueryService: UserQueryService
-                    --
-                    +IamContextFacadeImpl(AccountCommandService, AccountQueryService, UserCommandService, UserQueryService)
-                    +createAccount(userId: Integer, email: String, password: String, isActive: Boolean, role: String): Integer
-                    +createUser(name: String, phoneNumber: String): Integer
-                    +updateUser(id: Integer, name: String, phoneNumber: String): Integer
-                }
+        }
+        package "acl" {
+            class IamContextFacadeImpl <<ACL>>{
+                -accountCommandService: AccountCommandService
+                -userCommandService: UserCommandService
+                --
+                +IamContextFacadeImpl(AccountCommandService, UserCommandService)
+                +createAccount(userId: Integer, email: String, password: String, isActive: Boolean, role: String): Integer
+                +createUser(name: String, phoneNumber: String): Integer
+                +updateUser(id: Integer, name: String, phoneNumber: String): Integer
             }
         }
     }

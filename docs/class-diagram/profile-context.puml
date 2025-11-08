@@ -126,17 +126,15 @@ package "com.arkenna.indienest.backend.profile"{
                     +handle(GetProfileByIdQuery): Optional<Profile>
                 }
             }
-            package "acl" {
-                class ProfileContextFacadeImpl <<ACL>>{
-                    -portfolioCommandService: PortfolioCommandService
-                    -portfolioQueryService: PortfolioQueryService
-                    -profileCommandService: ProfileCommandService
-                    -profileQueryService: ProfileQueryService
-                    --
-                    +ProfileContextFacadeImpl(PortfolioCommandService, PortfolioQueryService, ProfileCommandService, ProfileQueryService)
-                    +createPortfolio(): Integer
-                    +createProfile(description: String, image: String, accountId: String, portfolioId: Integer): Integer
-                }
+        }
+        package "acl" {
+            class ProfileContextFacadeImpl <<ACL>>{
+                -portfolioCommandService: PortfolioCommandService
+                -profileCommandService: ProfileCommandService
+                --
+                +ProfileContextFacadeImpl(PortfolioCommandService, ProfileCommandService)
+                +createPortfolio(): Integer
+                +createProfile(description: String, image: String, accountId: String, portfolioId: Integer): Integer
             }
         }
     }
