@@ -32,7 +32,7 @@ public class AudioCommandServiceImpl implements AudioCommandService {
         var accountId = new AccountId(command.authorId());
         var projectName = new ProjectName(command.name());
         if(audioRepository.existsByAccountIdAndName(accountId, projectName)){
-            throw new IllegalArgumentException("Game with account id and name already exists");
+            throw new IllegalArgumentException("Audio with account id and name already exists");
         }
         var audio = new Audio(command);
         audioRepository.save(audio);
