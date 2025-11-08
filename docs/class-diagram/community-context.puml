@@ -90,11 +90,10 @@ package "com.arkenna.indienest.backend.community"{
             package "jpa"{
                 package "repositories"{
                     interface PublicationRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Publication>
+                        +existsByUserIdAndTitle(UserId, PublicationTitle): boolean
                     }
                     interface AnswerRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Answer>
-                    }
+                        +existsByUserIdAndComment(UserId, AnswerComment): boolean                    }
                 }
             }
         }

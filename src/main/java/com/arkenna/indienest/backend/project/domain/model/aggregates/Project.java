@@ -3,12 +3,14 @@ package com.arkenna.indienest.backend.project.domain.model.aggregates;
 import com.arkenna.indienest.backend.project.domain.model.valueobjects.*;
 import com.arkenna.indienest.backend.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 
 /**
  * Project Abstract Aggregate Root
  */
 @Getter
+@MappedSuperclass
 public class Project extends AuditableAbstractAggregateRoot<Project> {
 
     @Embedded

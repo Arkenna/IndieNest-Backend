@@ -62,7 +62,7 @@ package "com.arkenna.indienest.backend.support"{
             package "jpa"{
                 package "repositories"{
                     interface ReviewRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Review>
+                        +existsByUserIdAndComment(UserId, ReviewComment): boolean
                     }
                 }
             }

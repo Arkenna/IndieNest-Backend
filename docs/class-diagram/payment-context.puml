@@ -51,7 +51,7 @@ package "com.arkenna.indienest.backend.payment"{
             package "jpa"{
                 package "repositories"{
                     interface ShoppingCartRepository <<Repository>>{
-                        +findById(id: Integer): Optional<ShoppingCart>
+                        +existsByProfileIdAndPrice(ProfileId, Money): boolean
                     }
                 }
             }

@@ -122,10 +122,10 @@ package "com.arkenna.indienest.backend.iam"{
             package "jpa"{
                 package "repositories"{
                     interface AccountRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Account>
+                        +existsByEmail(Email): boolean
                     }
                     interface UserRepository <<Repository>>{
-                        +findById(id: Integer): Optional<User>
+                        +existsByNameAndPhoneNumber(UserName, PhoneNumber): boolean
                     }
                 }
             }

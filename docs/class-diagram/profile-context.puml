@@ -93,10 +93,10 @@ package "com.arkenna.indienest.backend.profile"{
             package "jpa"{
                 package "repositories"{
                     interface PortfolioRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Portfolio>
+                        +existsByGameIdsAndAudioIdsAndArtIds(GameId[], AudioId[], ArtId[]): boolean
                     }
                     interface ProfileRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Profile>
+                        +existsByAccountId(AccountId): boolean
                     }
                 }
             }

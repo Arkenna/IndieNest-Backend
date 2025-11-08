@@ -2,9 +2,10 @@ package com.arkenna.indienest.backend.project.domain.model.aggregates;
 
 import com.arkenna.indienest.backend.project.domain.model.commands.CreateArtCommand;
 import com.arkenna.indienest.backend.project.domain.model.valueobjects.ArtCategory;
-import com.arkenna.indienest.backend.project.domain.model.valueobjects.GameCategory;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 
 /**
@@ -14,7 +15,8 @@ import lombok.Getter;
 @Getter
 public class Art extends Project {
 
-    @Embedded
+
+    @Enumerated(EnumType.STRING)
     private ArtCategory category;
 
     /**

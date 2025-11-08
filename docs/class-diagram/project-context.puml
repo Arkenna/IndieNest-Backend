@@ -157,13 +157,13 @@ package "com.arkenna.indienest.backend.project"{
             package "jpa"{
                 package "repositories"{
                     interface GameRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Game>
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
                     }
                     interface ArtRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Art>
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
                     }
                     interface AudioRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Audio>
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
                     }
                 }
             }

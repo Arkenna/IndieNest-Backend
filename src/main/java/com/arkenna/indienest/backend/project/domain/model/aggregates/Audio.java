@@ -6,6 +6,8 @@ import com.arkenna.indienest.backend.project.domain.model.valueobjects.AudioForm
 import com.arkenna.indienest.backend.project.domain.model.valueobjects.AudioUrl;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 
 /**
@@ -21,7 +23,7 @@ public class Audio extends Project {
     @Embedded
     private AudioFormat audioFormat;
 
-    @Embedded
+    @Enumerated(EnumType.STRING)
     private AudioCategory category;
 
     /**
