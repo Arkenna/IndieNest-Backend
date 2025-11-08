@@ -1,8 +1,11 @@
 package com.arkenna.indienest.backend.community.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * Answer Comment Value Object
  */
+@Embeddable
 public record AnswerComment(String comment) {
 
     /**

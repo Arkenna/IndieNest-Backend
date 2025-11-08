@@ -1,8 +1,11 @@
 package com.arkenna.indienest.backend.community.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * PublicationId Value Object
  */
+@Embeddable
 public record PublicationId(Integer publicationId) {
 
     /**
@@ -10,7 +13,7 @@ public record PublicationId(Integer publicationId) {
      * @param publicationId Publication Id
      */
     public PublicationId {
-        if(publicationId == null || publicationId < 0)
+        if(publicationId == null || publicationId < 1)
             throw new IllegalArgumentException("Invalid publication id");
     }
 }
