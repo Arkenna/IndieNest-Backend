@@ -1,9 +1,7 @@
 package com.arkenna.indienest.backend.project.domain.services;
 
 import com.arkenna.indienest.backend.project.domain.model.aggregates.Art;
-import com.arkenna.indienest.backend.project.domain.model.aggregates.Game;
 import com.arkenna.indienest.backend.project.domain.model.commands.CreateArtCommand;
-import com.arkenna.indienest.backend.project.domain.model.commands.CreateGameCommand;
 
 import java.util.Optional;
 
