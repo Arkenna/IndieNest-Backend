@@ -5,7 +5,6 @@ import jakarta.persistence.Embeddable;
 /**
  * GameCategory Value Object
  */
-@Embeddable
 public enum GameCategory {
     HORROR,
     SURVIVAL,

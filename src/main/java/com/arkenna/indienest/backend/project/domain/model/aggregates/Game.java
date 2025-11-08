@@ -5,6 +5,8 @@ import com.arkenna.indienest.backend.project.domain.model.valueobjects.GameCateg
 import com.arkenna.indienest.backend.shared.domain.model.valueobjects.Money;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 
 /**
@@ -17,7 +19,7 @@ public class Game extends Project {
     @Embedded
     private Money price;
 
-    @Embedded
+    @Enumerated(EnumType.STRING)
     private GameCategory category;
 
     /**

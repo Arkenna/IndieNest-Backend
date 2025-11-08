@@ -7,7 +7,7 @@ package "com.arkenna.indienest.backend.project"{
         package "model"{
             package "aggregates"{
                 abstract class Project <<Aggregate root>>{
-                    -authorId: AccountId
+                    -accountId: AccountId
                     -name: ProjectName
                     -description: ProjectDescription
                     -rating: Rating
@@ -83,7 +83,7 @@ package "com.arkenna.indienest.backend.project"{
             }
             package "commands"{
                 record CreateGameCommand <<Command>>{
-                    +authorId: Integer
+                    +accountId: Integer
                     +name: String
                     +description: String
                     +rating: Number
@@ -92,7 +92,7 @@ package "com.arkenna.indienest.backend.project"{
                     +category: String
                 }
                 record CreateArtCommand <<Command>>{
-                    +authorId: Integer
+                    +accountId: Integer
                     +name: String
                     +description: String
                     +rating: Number
@@ -100,7 +100,7 @@ package "com.arkenna.indienest.backend.project"{
                     +category: String
                 }
                 record CreateAudioCommand <<Command>>{
-                    +authorId: Integer
+                    +accountId: Integer
                     +name: String
                     +description: String
                     +rating: Number
@@ -157,13 +157,13 @@ package "com.arkenna.indienest.backend.project"{
             package "jpa"{
                 package "repositories"{
                     interface GameRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Game>
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
                     }
                     interface ArtRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Art>
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
                     }
                     interface AudioRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Audio>
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
                     }
                 }
             }
@@ -202,142 +202,135 @@ package "com.arkenna.indienest.backend.project"{
                     +handle(GetAudioByIdQuery): Optional<Audio>
                 }
             }
-            package "acl" {
-                class ProjectContextFacadeImpl <<ACL>>{
-                    -gameCommandService: GameCommandService
-                    -gameQueryService: GameQueryService
-                    -artCommandService: ArtCommandService
-                    -artQueryService: ArtQueryService
-                    -audioCommandService: AudioCommandService
-                    -audioQueryService: AudioQueryService
-                    --
-                    +ProjectContextFacadeImpl(GameCommandService, GameQueryService, ArtCommandService, ArtQueryService, AudioCommandService, AudioQueryService)
-                    +createGame(authorId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
-                    +createArt(authorId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
-                    +createAudio(authorId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
-                }
+        }
+        package "acl" {
+            class ProjectContextFacadeImpl <<ACL>>{
+                -gameCommandService: GameCommandService
+                -artCommandService: ArtCommandService
+                -audioCommandService: AudioCommandService
+                --
+                +ProjectContextFacadeImpl(GameCommandService, ArtCommandService, AudioCommandService)
+                +createGame(accountId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                +createArt(accountId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                +createAudio(accountId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
             }
         }
     }
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class GamesController <<Controller>>{
-                    -gameCommandService: GameCommandService
-                    -gameQueryService: GameQueryService
-                    --
-                    +GamesController(GameCommandService, GameQueryService)
-                    +createGame(CreateGameResource): ResponseEntity<GameResource>
-                    +getAllGames(): ResponseEntity<List<GameResource>>
-                    +getGameById(id: Integer): ResponseEntity<GameResource>
+            class GamesController <<Controller>>{
+                -gameCommandService: GameCommandService
+                -gameQueryService: GameQueryService
+                --
+                +GamesController(GameCommandService, GameQueryService)
+                +createGame(CreateGameResource): ResponseEntity<GameResource>
+                +getAllGames(): ResponseEntity<List<GameResource>>
+                +getGameById(id: Integer): ResponseEntity<GameResource>
+            }
+            class ArtsController <<Controller>>{
+                -artCommandService: ArtCommandService
+                -artQueryService: ArtQueryService
+                --
+                +ArtsController(ArtCommandService, ArtQueryService)
+                +createArt(CreateArtResource): ResponseEntity<ArtResource>
+                +getAllArts(): ResponseEntity<List<ArtResource>>
+                +getArtById(id: Integer): ResponseEntity<ArtResource>
+            }
+            class AudiosController <<Controller>>{
+                -audioCommandService: AudioCommandService
+                -audioQueryService: AudioQueryService
+                --
+                +AudiosController(AudioCommandService, AudioQueryService)
+                +createAudio(CreateAudioResource): ResponseEntity<AudioResource>
+                +getAllAudios(): ResponseEntity<List<AudioResource>>
+                +getAudioById(id: Integer): ResponseEntity<AudioResource>
+            }
+            package "resources"{
+                record GameResource <<Resource>>{
+                    +id: Integer
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Integer
+                    +image: String
+                    +price: BigDecimal
+                    +category: String
                 }
-                class ArtsController <<Controller>>{
-                    -artCommandService: ArtCommandService
-                    -artQueryService: ArtQueryService
-                    --
-                    +ArtsController(ArtCommandService, ArtQueryService)
-                    +createArt(CreateArtResource): ResponseEntity<ArtResource>
-                    +getAllArts(): ResponseEntity<List<ArtResource>>
-                    +getArtById(id: Integer): ResponseEntity<ArtResource>
+                record ArtResource <<Resource>>{
+                    +id: Integer
+                    +accountId: Integer
+                    +name: ProjectName
+                    +description: String
+                    +rating: Integer
+                    +image: String
+                    +category: String
                 }
-                class AudiosController <<Controller>>{
-                    -audioCommandService: AudioCommandService
-                    -audioQueryService: AudioQueryService
-                    --
-                    +AudiosController(AudioCommandService, AudioQueryService)
-                    +createAudio(CreateAudioResource): ResponseEntity<AudioResource>
-                    +getAllAudios(): ResponseEntity<List<AudioResource>>
-                    +getAudioById(id: Integer): ResponseEntity<AudioResource>
+                record AudioResource <<Resource>>{
+                    +id: Integer
+                    +accountId: Integer
+                    +name: ProjectName
+                    +description: String
+                    +rating: Integer
+                    +image: String
+                    +audioUrl: String
+                    +format: String
+                    +category: String
+                }
+                record CreateGameResource <<Resource>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +price: BigDecimal
+                    +category: String
+                }
+                record CreateArtResource <<Resource>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +category: String
+                }
+                record CreateAudioResource <<Resource>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +audioUrl: String
+                    +format: String
+                    +category: String
+                }
+            }
+            package "transform"{
+                class CreateGameCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createGameResource: CreateGameResource): CreateGameCommand {static}
+                }
+                class CreateArtCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createArtResource: (CreateArtResource): CreateArtCommand {static}
+                }
+                class CreateAudioCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createAudioResource: CreateAudioResource): CreateAudioCommand {static}
+                }
+                class GameResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(game: Game): GameResource {static}
+                }
+                class ArtResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(art: Art): ArtResource {static}
+                }
+                class AudioResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(audio: Audio): AudioResource {static}
                 }
             }
         }
-        package "resources"{
-            record GameResource <<Resource>>{
-                +id: Integer
-                +authorId: Integer
-                +name: ProjectName
-                +description: String
-                +rating: Integer
-                +image: String
-                +creationDate: String
-                +price: BigDecimal
-                +category: String
-            }
-            record ArtResource <<Resource>>{
-                +id: Integer
-                +authorId: Integer
-                +name: ProjectName
-                +description: String
-                +rating: Integer
-                +image: String
-                +creationDate: String
-                +category: String
-            }
-            record AudioResource <<Resource>>{
-                +id: Integer
-                +authorId: Integer
-                +name: ProjectName
-                +description: String
-                +rating: Integer
-                +image: String
-                +creationDate: String
-                +audioUrl: String
-                +format: String
-                +category: String
-            }
-            record CreateGameResource <<Resource>>{
-                +authorId: Integer
-                +name: String
-                +description: String
-                +rating: Number
-                +image: String
-                +price: BigDecimal
-                +category: String
-            }
-            record CreateArtResource <<Resource>>{
-                +authorId: Integer
-                +name: String
-                +description: String
-                +rating: Number
-                +image: String
-                +category: String
-            }
-            record CreateAudioResource <<Resource>>{
-                +authorId: Integer
-                +name: String
-                +description: String
-                +rating: Number
-                +image: String
-                +audioUrl: String
-                +format: String
-                +category: String
-            }
-        }
-        package "transform"{
-            class CreateGameCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createGameResource: CreateGameResource): CreateGameCommand {static}
-            }
-            class CreateArtCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createArtResource: (CreateArtResource): CreateArtCommand {static}
-            }
-            class CreateAudioCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createAudioResource: CreateAudioResource): CreateAudioCommand {static}
-            }
-            class GameResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(game: Game): GameResource {static}
-            }
-            class ArtResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(art: Art): ArtResource {static}
-            }
-            class AudioResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(audio: Audio): AudioResource {static}
-            }
-        }
+
         package "acl"{
             interface ProjectContextFacade <<ACL>>{
-                +createGame(authorId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
-                +createArt(authorId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
-                +createAudio(authorId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
+                +createGame(accountId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                +createArt(accountId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                +createAudio(accountId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
             }
         }
     }

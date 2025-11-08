@@ -62,7 +62,7 @@ package "com.arkenna.indienest.backend.support"{
             package "jpa"{
                 package "repositories"{
                     interface ReviewRepository <<Repository>>{
-                        +findById(id: Integer): Optional<Review>
+                        +existsByUserIdAndComment(UserId, ReviewComment): boolean
                     }
                 }
             }
@@ -83,54 +83,52 @@ package "com.arkenna.indienest.backend.support"{
                     +handle(GetReviewByIdQuery): Optional<Review>
                 }
             }
-            package "acl" {
-                class SupportContextFacadeImpl <<ACL>>{
-                    -reviewCommandService: ReviewCommandService
-                    -reviewQueryService: ReviewQueryService
-                    --
-                    +SupportContextFacadeImpl(ReviewCommandService, ReviewQueryService)
-                    +createReview(userId: Integer, projectId: Integer, comment: String, rating: Integer): Integer
-                }
+        }
+        package "acl" {
+            class SupportContextFacadeImpl <<ACL>>{
+                -reviewCommandService: ReviewCommandService
+                --
+                +SupportContextFacadeImpl(ReviewCommandService)
+                +createReview(userId: Integer, projectId: Integer, comment: String, rating: Integer): Integer
             }
         }
     }
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class ReviewsController <<Controller>>{
-                    -reviewCommandService: ReviewCommandService
-                    -reviewQueryService: ReviewQueryService
-                    --
-                    +ReviewsController(ReviewCommandService, ReviewQueryService)
-                    +createReview(CreateReviewResource): ResponseEntity<ReviewResource>
-                    +getAllReviews(): ResponseEntity<List<ReviewResource>>
-                    +getReviewById(id: Integer): ResponseEntity<ReviewResource>
+            class ReviewsController <<Controller>>{
+                -reviewCommandService: ReviewCommandService
+                -reviewQueryService: ReviewQueryService
+                --
+                +ReviewsController(ReviewCommandService, ReviewQueryService)
+                +createReview(CreateReviewResource): ResponseEntity<ReviewResource>
+                +getAllReviews(): ResponseEntity<List<ReviewResource>>
+                +getReviewById(id: Integer): ResponseEntity<ReviewResource>
+            }
+            package "resources"{
+                record ReviewResource <<Resource>>{
+                    +id: Integer
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+                record CreateReviewResource <<Resource>>{
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+            }
+            package "transform"{
+                class CreateReviewCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createReviewResource: CreateReviewResource): CreateReviewCommand {static}
+                }
+                class ReviewResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(review: Review): ReviewResource {static}
                 }
             }
         }
-        package "resources"{
-            record ReviewResource <<Resource>>{
-                +id: Integer
-                +userId: Integer
-                +projectId: Integer
-                +comment: String
-                +rating: Integer
-            }
-            record CreateReviewResource <<Resource>>{
-                +userId: Integer
-                +projectId: Integer
-                +comment: String
-                +rating: Integer
-            }
-        }
-        package "transform"{
-            class CreateReviewCommandFromResourceAssembler<<Assembler>>{
-                +toCommandFromResource(createReviewResource: CreateReviewResource): CreateReviewCommand {static}
-            }
-            class ReviewResourceFromEntityAssembler<<Assembler>>{
-                +toResourceFromEntity(review: Review): ReviewResource {static}
-            }
-        }
+
         package "acl"{
             interface SupportContextFacade<<ACL>>{
                 --
