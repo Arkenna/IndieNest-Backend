@@ -1,8 +1,11 @@
 package com.arkenna.indienest.backend.project.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
+
 /**
  *ProjectName Value Object
  */
+@Embeddable
 public record ProjectName(String name) {
 
     /**

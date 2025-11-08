@@ -1,8 +1,11 @@
 package com.arkenna.indienest.backend.project.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * Rating Value Object
  */
+@Embeddable
 public record Rating(Integer rating) {
 
     /**

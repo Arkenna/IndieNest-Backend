@@ -1,8 +1,11 @@
 package com.arkenna.indienest.backend.project.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
+
 /**
  *AudioFormat Value object
  */
+@Embeddable
 public record AudioFormat(String format) {
 
     /**

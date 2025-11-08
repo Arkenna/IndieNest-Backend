@@ -22,7 +22,7 @@ public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Date createdAt;
