@@ -175,32 +175,30 @@ package "com.arkenna.indienest.backend.iam"{
     }
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class AuthenticationController <<Controller>>{
-                    -accountCommandService: AccountCommandService
-                    --
-                    +AuthenticationController(AccountCommandService)
-                    +signIn(signInResource) : ResponseEntity<AuthenticatedAccountResource>
-                    +signUp(signUpResource) : ResponseEntity<AccountResource>
-                }
-                class AccountsController <<Controller>>{
-                    -accountCommandService: AccountCommandService
-                    -accountQueryService: AccountQueryService
-                    --
-                    +AccountsController(AccountCommandService, AccountQueryService)
-                    +createAccount(CreateAccountResource): ResponseEntity<AccountResource>
-                    +getAllAccounts(): ResponseEntity<List<AccountResource>>
-                    +getAccountById(id: Integer): ResponseEntity<AccountResource>
-                }
-                class UsersController <<Controller>>{
-                    -userCommandService: UserCommandService
-                    -userQueryService: UserQueryService
-                    +UsersController(UserCommandService, UserQueryService)
-                    +createUser(CreateUserResource): ResponseEntity<UserResource>
-                    +updateUser(UpdateUserCommand): ResponseEntity<UserResource>
-                    +getAllUsers(): ResponseEntity<List<UserResource>>
-                    +getUserById(id: Integer): ResponseEntity<UserResource>
-                }
+            class AuthenticationController <<Controller>>{
+                -accountCommandService: AccountCommandService
+                --
+                +AuthenticationController(AccountCommandService)
+                +signIn(signInResource) : ResponseEntity<AuthenticatedAccountResource>
+                +signUp(signUpResource) : ResponseEntity<AccountResource>
+            }
+            class AccountsController <<Controller>>{
+                -accountCommandService: AccountCommandService
+                -accountQueryService: AccountQueryService
+                --
+                +AccountsController(AccountCommandService, AccountQueryService)
+                +createAccount(CreateAccountResource): ResponseEntity<AccountResource>
+                +getAllAccounts(): ResponseEntity<List<AccountResource>>
+                +getAccountById(id: Integer): ResponseEntity<AccountResource>
+            }
+            class UsersController <<Controller>>{
+                -userCommandService: UserCommandService
+                -userQueryService: UserQueryService
+                +UsersController(UserCommandService, UserQueryService)
+                +createUser(CreateUserResource): ResponseEntity<UserResource>
+                +updateUser(UpdateUserCommand): ResponseEntity<UserResource>
+                +getAllUsers(): ResponseEntity<List<UserResource>>
+                +getUserById(id: Integer): ResponseEntity<UserResource>
             }
             package "resources"{
                 record AccountResource <<Resource>>{

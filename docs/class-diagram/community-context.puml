@@ -126,25 +126,23 @@ package "com.arkenna.indienest.backend.community"{
 
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class PublicationsController <<Controller>>{
-                    -publicationCommandService: PublicationCommandService
-                    -publicationQueryService: PublicationQueryService
-                    --
-                    +PublicationsController(PublicationCommandService, PublicationQueryService)
-                    +createPublication(CreatePublicationResource): ResponseEntity<PublicationResource>
-                    +getAllPublications(): ResponseEntity<List<PublicationResource>>
-                    +getPublicationById(id: Integer): ResponseEntity<PublicationResource>
-                }
-                class AnswersController <<Controller>>{
-                    -answerCommandService: AnswerCommandService
-                    -answerQueryService: AnswerQueryService
-                    --
-                    +AnswersController(AnswerCommandService, AnswerQueryService)
-                    +createAnswer(CreateAnswerResource): ResponseEntity<AnswerResource>
-                    +getAllAnswers(): ResponseEntity<List<AnswerResource>>
-                    +getAnswerById(id: Integer): ResponseEntity<AnswerResource>
-                }
+            class PublicationsController <<Controller>>{
+                -publicationCommandService: PublicationCommandService
+                -publicationQueryService: PublicationQueryService
+                --
+                +PublicationsController(PublicationCommandService, PublicationQueryService)
+                +createPublication(CreatePublicationResource): ResponseEntity<PublicationResource>
+                +getAllPublications(): ResponseEntity<List<PublicationResource>>
+                +getPublicationById(id: Integer): ResponseEntity<PublicationResource>
+            }
+            class AnswersController <<Controller>>{
+                -answerCommandService: AnswerCommandService
+                -answerQueryService: AnswerQueryService
+                --
+                +AnswersController(AnswerCommandService, AnswerQueryService)
+                +createAnswer(CreateAnswerResource): ResponseEntity<AnswerResource>
+                +getAllAnswers(): ResponseEntity<List<AnswerResource>>
+                +getAnswerById(id: Integer): ResponseEntity<AnswerResource>
             }
             package "resources"{
                 record PublicationResource <<Resource>>{

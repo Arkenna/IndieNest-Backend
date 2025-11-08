@@ -140,25 +140,23 @@ package "com.arkenna.indienest.backend.profile"{
     }
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class PortfoliosController <<Controller>>{
-                    -portfolioCommandService: PortfolioCommandService
-                    -portfolioQueryService: PortfolioQueryService
-                    --
-                    +PortfoliosController(PortfolioCommandService, PortfolioQueryService)
-                    +createPortfolio(CreatePortfolioResource): ResponseEntity<PortfolioResource>
-                    +getAllPortfolios(): ResponseEntity<List<PortfolioResource>>
-                    +getPortfolioById(id: Integer): ResponseEntity<PortfolioResource>
-                }
-                class ProfilesController <<Controller>>{
-                    -profileCommandService: ProfileCommandService
-                    -profileQueryService: ProfileQueryService
-                    --
-                    +ProfilesController(ProfileCommandService, ProfileQueryService)
-                    +createProfile(CreateProfileResource): ResponseEntity<ProfileResource>
-                    +getAllProfiles(): ResponseEntity<List<ProfileResource>>
-                    +getProfileById(id: Integer): ResponseEntity<ProfileResource>
-                }
+            class PortfoliosController <<Controller>>{
+                -portfolioCommandService: PortfolioCommandService
+                -portfolioQueryService: PortfolioQueryService
+                --
+                +PortfoliosController(PortfolioCommandService, PortfolioQueryService)
+                +createPortfolio(CreatePortfolioResource): ResponseEntity<PortfolioResource>
+                +getAllPortfolios(): ResponseEntity<List<PortfolioResource>>
+                +getPortfolioById(id: Integer): ResponseEntity<PortfolioResource>
+            }
+            class ProfilesController <<Controller>>{
+                -profileCommandService: ProfileCommandService
+                -profileQueryService: ProfileQueryService
+                --
+                +ProfilesController(ProfileCommandService, ProfileQueryService)
+                +createProfile(CreateProfileResource): ResponseEntity<ProfileResource>
+                +getAllProfiles(): ResponseEntity<List<ProfileResource>>
+                +getProfileById(id: Integer): ResponseEntity<ProfileResource>
             }
             package "resources"{
                 record PortfolioResource <<Resource>>{

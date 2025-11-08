@@ -218,34 +218,32 @@ package "com.arkenna.indienest.backend.project"{
     }
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class GamesController <<Controller>>{
-                    -gameCommandService: GameCommandService
-                    -gameQueryService: GameQueryService
-                    --
-                    +GamesController(GameCommandService, GameQueryService)
-                    +createGame(CreateGameResource): ResponseEntity<GameResource>
-                    +getAllGames(): ResponseEntity<List<GameResource>>
-                    +getGameById(id: Integer): ResponseEntity<GameResource>
-                }
-                class ArtsController <<Controller>>{
-                    -artCommandService: ArtCommandService
-                    -artQueryService: ArtQueryService
-                    --
-                    +ArtsController(ArtCommandService, ArtQueryService)
-                    +createArt(CreateArtResource): ResponseEntity<ArtResource>
-                    +getAllArts(): ResponseEntity<List<ArtResource>>
-                    +getArtById(id: Integer): ResponseEntity<ArtResource>
-                }
-                class AudiosController <<Controller>>{
-                    -audioCommandService: AudioCommandService
-                    -audioQueryService: AudioQueryService
-                    --
-                    +AudiosController(AudioCommandService, AudioQueryService)
-                    +createAudio(CreateAudioResource): ResponseEntity<AudioResource>
-                    +getAllAudios(): ResponseEntity<List<AudioResource>>
-                    +getAudioById(id: Integer): ResponseEntity<AudioResource>
-                }
+            class GamesController <<Controller>>{
+                -gameCommandService: GameCommandService
+                -gameQueryService: GameQueryService
+                --
+                +GamesController(GameCommandService, GameQueryService)
+                +createGame(CreateGameResource): ResponseEntity<GameResource>
+                +getAllGames(): ResponseEntity<List<GameResource>>
+                +getGameById(id: Integer): ResponseEntity<GameResource>
+            }
+            class ArtsController <<Controller>>{
+                -artCommandService: ArtCommandService
+                -artQueryService: ArtQueryService
+                --
+                +ArtsController(ArtCommandService, ArtQueryService)
+                +createArt(CreateArtResource): ResponseEntity<ArtResource>
+                +getAllArts(): ResponseEntity<List<ArtResource>>
+                +getArtById(id: Integer): ResponseEntity<ArtResource>
+            }
+            class AudiosController <<Controller>>{
+                -audioCommandService: AudioCommandService
+                -audioQueryService: AudioQueryService
+                --
+                +AudiosController(AudioCommandService, AudioQueryService)
+                +createAudio(CreateAudioResource): ResponseEntity<AudioResource>
+                +getAllAudios(): ResponseEntity<List<AudioResource>>
+                +getAudioById(id: Integer): ResponseEntity<AudioResource>
             }
             package "resources"{
                 record GameResource <<Resource>>{

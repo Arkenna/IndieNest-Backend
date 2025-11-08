@@ -84,16 +84,14 @@ package "com.arkenna.indienest.backend.payment"{
     }
     package "interfaces"{
         package "rest"{
-            package "controllers"{
-                class ShoppingCartsController <<Controller>>{
-                    -shoppingCartCommandService: ShoppingCartCommandService
-                    -shoppingCartQueryService: ShoppingCartQueryService
-                    --
-                    +ShoppingCartsController(ShoppingCartCommandService, ShoppingCartQueryService)
-                    +createShoppingCart(CreateShoppingCartResource): ResponseEntity<ShoppingCartResource>
-                    +getAllShoppingCarts(): ResponseEntity<List<ShoppingCartResource>>
-                    +getShoppingCartById(id: Integer): ResponseEntity<ShoppingCartResource>
-                }
+            class ShoppingCartsController <<Controller>>{
+                -shoppingCartCommandService: ShoppingCartCommandService
+                -shoppingCartQueryService: ShoppingCartQueryService
+                --
+                +ShoppingCartsController(ShoppingCartCommandService, ShoppingCartQueryService)
+                +createShoppingCart(CreateShoppingCartResource): ResponseEntity<ShoppingCartResource>
+                +getAllShoppingCarts(): ResponseEntity<List<ShoppingCartResource>>
+                +getShoppingCartById(id: Integer): ResponseEntity<ShoppingCartResource>
             }
             package "resources"{
                 record ShoppingCartResource <<Resource>>{
