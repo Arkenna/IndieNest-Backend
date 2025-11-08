@@ -28,6 +28,7 @@ public class ArtCommandServiceImpl implements ArtCommandService {
     }
 
     // inherited javadoc
+    @Override
     public Optional<Art> handle(CreateArtCommand command){
         var accountId = new AccountId(command.authorId());
         var projectName = new ProjectName(command.name());

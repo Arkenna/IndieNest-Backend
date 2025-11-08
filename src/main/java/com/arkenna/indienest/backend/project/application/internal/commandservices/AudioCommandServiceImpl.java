@@ -28,6 +28,7 @@ public class AudioCommandServiceImpl implements AudioCommandService {
     }
 
     // inherited javadoc
+    @Override
     public Optional<Audio> handle(CreateAudioCommand command){
         var accountId = new AccountId(command.authorId());
         var projectName = new ProjectName(command.name());
