@@ -21,22 +21,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/Answers", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/answers", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Answers", description = "Available Answer Endpoints")
 public class AnswersController {
 
-    private final AnswerCommandService  AnswerCommandService;
-    private final AnswerQueryService AnswerQueryService;
+    private final AnswerCommandService  answerCommandService;
+    private final AnswerQueryService answerQueryService;
 
     /**
      * Constructor
      *
-     * @param AnswerCommandService The {@link AnswerCommandService} instance
-     * @param AnswerQueryService The {@link AnswerQueryService} instance
+     * @param answerCommandService The {@link AnswerCommandService} instance
+     * @param answerQueryService The {@link AnswerQueryService} instance
      */
-    public AnswersController(AnswerCommandService AnswerCommandService, AnswerQueryService AnswerQueryService) {
-        this.AnswerCommandService = AnswerCommandService;
-        this.AnswerQueryService = AnswerQueryService;
+    public AnswersController(AnswerCommandService answerCommandService, AnswerQueryService answerQueryService) {
+        this.answerCommandService = answerCommandService;
+        this.answerQueryService = answerQueryService;
     }
 
     /**
@@ -53,30 +53,30 @@ public class AnswersController {
     public ResponseEntity<AnswerResource> createAnswer(@RequestBody CreateAnswerResource resource){
 
         var createAnswerCommand = CreateAnswerCommandFromResourceAssembler.toCommandFromResource(resource);
-        var Answer = AnswerCommandService.handle(createAnswerCommand);
-        if(Answer.isEmpty()) return ResponseEntity.badRequest().build();
-        var createdAnswer = Answer.get();
-        var AnswerResource = AnswerResourceFromEntityAssembler.toResourceFromEntity(createdAnswer);
-        return new  ResponseEntity<>(AnswerResource, HttpStatus.CREATED);
+        var answer = answerCommandService.handle(createAnswerCommand);
+        if(answer.isEmpty()) return ResponseEntity.badRequest().build();
+        var createdAnswer = answer.get();
+        var answerResource = AnswerResourceFromEntityAssembler.toResourceFromEntity(createdAnswer);
+        return new  ResponseEntity<>(answerResource, HttpStatus.CREATED);
     }
 
     /**
      * Get an Answer by ID
-     * @param AnswerId The Answer ID
+     * @param answerId The Answer ID
      * @return A {@link AnswerResource} resource for the Answer, or a not found response if the Answer could not be found.
      */
-    @GetMapping("/{AnswerId}")
+    @GetMapping("/{answerId}")
     @Operation(summary = "Get a Answer by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Answer found"),
             @ApiResponse(responseCode = "404", description = "Answer not found")})
-    public ResponseEntity<AnswerResource> getAnswerById(@PathVariable Integer AnswerId) {
-        var getAnswerByIdQuery = new GetAnswerByIdQuery(AnswerId);
-        var Answer = AnswerQueryService.handle(getAnswerByIdQuery);
-        if (Answer.isEmpty()) return ResponseEntity.notFound().build();
-        var AnswerEntity = Answer.get();
-        var AnswerResource = AnswerResourceFromEntityAssembler.toResourceFromEntity(AnswerEntity);
-        return ResponseEntity.ok(AnswerResource);
+    public ResponseEntity<AnswerResource> getAnswerById(@PathVariable Integer answerId) {
+        var getAnswerByIdQuery = new GetAnswerByIdQuery(answerId);
+        var answer = answerQueryService.handle(getAnswerByIdQuery);
+        if (answer.isEmpty()) return ResponseEntity.notFound().build();
+        var answerEntity = answer.get();
+        var answerResource = AnswerResourceFromEntityAssembler.toResourceFromEntity(answerEntity);
+        return ResponseEntity.ok(answerResource);
     }
 
     /**
@@ -89,12 +89,12 @@ public class AnswersController {
             @ApiResponse(responseCode = "200", description = "Answers found"),
             @ApiResponse(responseCode = "404", description = "Answers not found")})
     public ResponseEntity<List<AnswerResource>> getAllAnswers() {
-        var Answers = AnswerQueryService.handle(new GetAllAnswersQuery());
-        if (Answers.isEmpty()) return ResponseEntity.notFound().build();
-        var AnswerResources = Answers.stream()
+        var answers = answerQueryService.handle(new GetAllAnswersQuery());
+        if (answers.isEmpty()) return ResponseEntity.notFound().build();
+        var answerResources = answers.stream()
                 .map(AnswerResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
-        return ResponseEntity.ok(AnswerResources);
+        return ResponseEntity.ok(answerResources);
     }
 
 }

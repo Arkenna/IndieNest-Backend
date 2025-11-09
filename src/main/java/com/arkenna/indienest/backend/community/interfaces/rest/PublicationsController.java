@@ -21,22 +21,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/Publications", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/publications", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Publications", description = "Available Publication Endpoints")
 public class PublicationsController {
 
-    private final PublicationCommandService  PublicationCommandService;
-    private final PublicationQueryService PublicationQueryService;
+    private final PublicationCommandService  publicationCommandService;
+    private final PublicationQueryService publicationQueryService;
 
     /**
      * Constructor
      *
-     * @param PublicationCommandService The {@link PublicationCommandService} instance
-     * @param PublicationQueryService The {@link PublicationQueryService} instance
+     * @param publicationCommandService The {@link PublicationCommandService} instance
+     * @param publicationQueryService The {@link PublicationQueryService} instance
      */
-    public PublicationsController(PublicationCommandService PublicationCommandService, PublicationQueryService PublicationQueryService) {
-        this.PublicationCommandService = PublicationCommandService;
-        this.PublicationQueryService = PublicationQueryService;
+    public PublicationsController(PublicationCommandService publicationCommandService, PublicationQueryService publicationQueryService) {
+        this.publicationCommandService = publicationCommandService;
+        this.publicationQueryService = publicationQueryService;
     }
 
     /**
@@ -53,30 +53,30 @@ public class PublicationsController {
     public ResponseEntity<PublicationResource> createPublication(@RequestBody CreatePublicationResource resource){
 
         var createPublicationCommand = CreatePublicationCommandFromResourceAssembler.toCommandFromResource(resource);
-        var Publication = PublicationCommandService.handle(createPublicationCommand);
-        if(Publication.isEmpty()) return ResponseEntity.badRequest().build();
-        var createdPublication = Publication.get();
-        var PublicationResource = PublicationResourceFromEntityAssembler.toResourceFromEntity(createdPublication);
-        return new  ResponseEntity<>(PublicationResource, HttpStatus.CREATED);
+        var publication = publicationCommandService.handle(createPublicationCommand);
+        if(publication.isEmpty()) return ResponseEntity.badRequest().build();
+        var createdPublication = publication.get();
+        var publicationResource = PublicationResourceFromEntityAssembler.toResourceFromEntity(createdPublication);
+        return new  ResponseEntity<>(publicationResource, HttpStatus.CREATED);
     }
 
     /**
-     * Get an Publication by ID
-     * @param PublicationId The Publication ID
+     * Get a Publication by ID
+     * @param publicationId The Publication ID
      * @return A {@link PublicationResource} resource for the Publication, or a not found response if the Publication could not be found.
      */
-    @GetMapping("/{PublicationId}")
+    @GetMapping("/{publicationId}")
     @Operation(summary = "Get a Publication by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Publication found"),
             @ApiResponse(responseCode = "404", description = "Publication not found")})
-    public ResponseEntity<PublicationResource> getPublicationById(@PathVariable Integer PublicationId) {
-        var getPublicationByIdQuery = new GetPublicationByIdQuery(PublicationId);
-        var Publication = PublicationQueryService.handle(getPublicationByIdQuery);
-        if (Publication.isEmpty()) return ResponseEntity.notFound().build();
-        var PublicationEntity = Publication.get();
-        var PublicationResource = PublicationResourceFromEntityAssembler.toResourceFromEntity(PublicationEntity);
-        return ResponseEntity.ok(PublicationResource);
+    public ResponseEntity<PublicationResource> getPublicationById(@PathVariable Integer publicationId) {
+        var getPublicationByIdQuery = new GetPublicationByIdQuery(publicationId);
+        var publication = publicationQueryService.handle(getPublicationByIdQuery);
+        if (publication.isEmpty()) return ResponseEntity.notFound().build();
+        var publicationEntity = publication.get();
+        var publicationResource = PublicationResourceFromEntityAssembler.toResourceFromEntity(publicationEntity);
+        return ResponseEntity.ok(publicationResource);
     }
 
     /**
@@ -89,12 +89,12 @@ public class PublicationsController {
             @ApiResponse(responseCode = "200", description = "Publications found"),
             @ApiResponse(responseCode = "404", description = "Publications not found")})
     public ResponseEntity<List<PublicationResource>> getAllPublications() {
-        var Publications = PublicationQueryService.handle(new GetAllPublicationsQuery());
-        if (Publications.isEmpty()) return ResponseEntity.notFound().build();
-        var PublicationResources = Publications.stream()
+        var publications = publicationQueryService.handle(new GetAllPublicationsQuery());
+        if (publications.isEmpty()) return ResponseEntity.notFound().build();
+        var publicationResources = publications.stream()
                 .map(PublicationResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
-        return ResponseEntity.ok(PublicationResources);
+        return ResponseEntity.ok(publicationResources);
     }
 
 }
