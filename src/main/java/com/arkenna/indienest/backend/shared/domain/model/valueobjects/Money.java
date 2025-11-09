@@ -1,11 +1,14 @@
 package com.arkenna.indienest.backend.shared.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
  * Money Value Object
  */
+@Embeddable
 public record Money(BigDecimal amount, String currency) {
 
     /**

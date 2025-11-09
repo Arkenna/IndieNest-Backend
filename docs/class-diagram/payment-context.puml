@@ -8,19 +8,33 @@ package "com.arkenna.indienest.backend.payment"{
             package "aggregates"{
                 class ShoppingCart <<Aggregate root>>{
                     -profileId: ProfileId
-                    -gameIds: GameId[]
                     -price: Money
+                    -items: List<ShoppingCartGame>
                     --
                     +ShoppingCart(command: CreateShoppingCartCommand)
-                    +updateGameIds(gameIds: Integer[]): Void
-                    +updatePrice(price: BigDecimal): Void
-                }
+                    +addGame(gameId: Integer): Void
+                    +removeGame(gameId: Integer): Void
+               }
             }
             package "value objects"{
                 record GameId <<Value object>>{
                     +gameId: Integer
                 }
+                record ShoppingCartId <<Value object>>{
+                    +shoppingCartId: Integer
+                }
+                record ProfileId <<Value object>>{
+                    +profileId: Integer
+                }
             }
+            package "entities"{
+                 class ShoppingCartGame <<Entity>>{
+                     -shoppingCartId: Integer
+                     -gameId: Integer
+                     --
+                     +ShoppingCartGame(command: CreateShoppingCartCommand)
+                 }
+             }
             package "commands"{
                 record CreateShoppingCartCommand <<Command>>{
                     +profileId: Integer
@@ -97,14 +111,20 @@ package "com.arkenna.indienest.backend.payment"{
                 record ShoppingCartResource <<Resource>>{
                     +id: Integer
                     +profileId: Integer
-                    +gameIds: Integer[]
+                    +items: List<ShoppingCartGameResource>
                     +price: BigDecimal
 
                 }
                 record CreateShoppingCartResource <<Resource>>{
                     +profileId: Integer
-                    +gameIds: Integer[]
+                    +gameId: Integer
                     +price: BigDecimal
+                }
+
+                record ShoppingCartGameResource<<Resource>>{
+                    +id: Integer
+                    +shoppingCartId: Integer
+                    +gameId: Integer
                 }
             }
             package "transform"{
@@ -120,7 +140,7 @@ package "com.arkenna.indienest.backend.payment"{
         package "acl"{
             interface PaymentContextFacade<<ACL>>{
                 --
-                +createShoppingCart(profileId: Integer, gameIds: Integer[], price: BigDecimal): Integer
+                +createShoppingCart(profileId: Integer, gameId: Integer, price: BigDecimal): Integer
             }
         }
     }
@@ -129,6 +149,12 @@ package "com.arkenna.indienest.backend.payment"{
 'DOMAIN LAYER
 'aggregates
 ShoppingCart ..> CreateShoppingCartCommand
+ShoppingCart --> ProfileId
+ShoppingCart *--> ShoppingCartGame
+
+'entities
+ShoppingCartGame --> ShoppingCartId
+ShoppingCartGame --> GameId
 'services
 ShoppingCartCommandService ..> CreateShoppingCartCommand
 ShoppingCartQueryService ..> GetAllShoppingCartsQuery
