@@ -111,14 +111,20 @@ package "com.arkenna.indienest.backend.payment"{
                 record ShoppingCartResource <<Resource>>{
                     +id: Integer
                     +profileId: Integer
-                    +gameIds: Integer[]
+                    +items: List<ShoppingCartGameResource>
                     +price: BigDecimal
 
                 }
                 record CreateShoppingCartResource <<Resource>>{
                     +profileId: Integer
-                    +gameIds: Integer[]
+                    +gameId: Integer
                     +price: BigDecimal
+                }
+
+                record ShoppingCartGameResource<<Resource>>{
+                    +id: Integer
+                    +shoppingCartId: Integer
+                    +gameId: Integer
                 }
             }
             package "transform"{
@@ -134,7 +140,7 @@ package "com.arkenna.indienest.backend.payment"{
         package "acl"{
             interface PaymentContextFacade<<ACL>>{
                 --
-                +createShoppingCart(profileId: Integer, gameIds: Integer[], price: BigDecimal): Integer
+                +createShoppingCart(profileId: Integer, gameId: Integer, price: BigDecimal): Integer
             }
         }
     }
