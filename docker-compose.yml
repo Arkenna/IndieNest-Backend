@@ -1,39 +1,11 @@
-version: "3.9"
-
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: indienest-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${INDIENEST_MYSQL_PWD}
-      MYSQL_DATABASE: indienest-backend
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - backend-net
-
-  backend:
+  learning-center-platform-os:
     image: indienest-backend:1.0.0
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: indienest-backend
-    restart: always
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      INDIENEST_MYSQL_PWD: ${INDIENEST_MYSQL_PWD}
-    depends_on:
-      - mysql
-    networks:
-      - backend-net
-
-networks:
-  backend-net:
-
-volumes:
-  mysql_data:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - INDIENEST_MYSQL_PWD=${INDIENEST_MYSQL_PWD}
