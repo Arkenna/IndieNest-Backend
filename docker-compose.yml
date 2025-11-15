@@ -1,5 +1,5 @@
 services:
-  learning-center-platform-os:
+  indienest-backend:
     image: indienest-backend:1.0.0
     build:
       context: .
