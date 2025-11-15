@@ -13,7 +13,7 @@ public record PublicationImage(String image) {
      * @param image Image
      */
     public PublicationImage {
-        if(image.isBlank())
+        if(image != null && image.isBlank())
             throw new IllegalArgumentException("Image cannot be blank");
     }
 }

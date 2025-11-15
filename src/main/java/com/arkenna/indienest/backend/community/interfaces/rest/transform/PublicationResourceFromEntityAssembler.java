@@ -15,11 +15,15 @@ public class PublicationResourceFromEntityAssembler {
      * @return The {@link PublicationResource} resource
      */
     public static PublicationResource toResourceFromEntity(Publication entity) {
+
+        //Avoid Null Pointer exception
+        String image = entity.getImage() != null ? entity.getImage().image() : null;
+
         return new PublicationResource(
                 entity.getId(),
                 entity.getUserId().userId(),
                 entity.getTitle().title(),
                 entity.getComment().comment(),
-                entity.getImage().image());
+                image);
     }
 }
