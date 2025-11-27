@@ -4,10 +4,7 @@ import com.arkenna.indienest.backend.project.domain.model.commands.CreateAudioCo
 import com.arkenna.indienest.backend.project.domain.model.valueobjects.AudioCategory;
 import com.arkenna.indienest.backend.project.domain.model.valueobjects.AudioFormat;
 import com.arkenna.indienest.backend.project.domain.model.valueobjects.AudioUrl;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 /**
@@ -15,6 +12,7 @@ import lombok.Getter;
  */
 @Entity
 @Getter
+@Table(name = "audios")
 public class Audio extends Project {
 
     @Embedded

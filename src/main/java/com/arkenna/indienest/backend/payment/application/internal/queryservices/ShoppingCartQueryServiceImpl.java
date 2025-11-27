@@ -1,4 +1,4 @@
-package com.arkenna.indienest.backend.payment.application.internal.commandservices;
+package com.arkenna.indienest.backend.payment.application.internal.queryservices;
 
 import com.arkenna.indienest.backend.payment.domain.model.aggregates.ShoppingCart;
 import com.arkenna.indienest.backend.payment.domain.model.queries.GetAllShoppingCartsQuery;
