@@ -1,5 +1,6 @@
 package com.arkenna.indienest.backend.iam.infrastructure.authorization.sfs.services;
 
+import com.arkenna.indienest.backend.iam.domain.model.valueobjects.Email;
 import com.arkenna.indienest.backend.iam.domain.model.valueobjects.UserId;
 import com.arkenna.indienest.backend.iam.domain.model.valueobjects.UserName;
 import com.arkenna.indienest.backend.iam.infrastructure.authorization.sfs.model.UserDetailsImpl;
@@ -33,13 +34,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // username => email
 
-        var user = userRepository.findByName(new UserName(username))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        var email = new Email(username);
+        var account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found for email: " + username));
 
-
-        var account = accountRepository.findByUserId(new UserId(user.getId()))
-                .orElseThrow(() -> new UsernameNotFoundException("Account not found for user: " + username));
+        var user = userRepository.findById(account.getUserId().userId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
 
         return UserDetailsImpl.build(user, account);
     }
