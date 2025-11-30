@@ -9,6 +9,10 @@ import com.arkenna.indienest.backend.iam.interfaces.rest.resources.SignUpResourc
 import com.arkenna.indienest.backend.iam.interfaces.rest.transform.AuthenticatedAccountResourceFromEntityAssembler;
 import com.arkenna.indienest.backend.iam.interfaces.rest.transform.SignInCommandFromResourceAssembler;
 import com.arkenna.indienest.backend.iam.interfaces.rest.transform.SignUpCommandFromResourceAssembler;
+import com.arkenna.indienest.backend.profile.domain.model.commands.CreateProfileCommand;
+import com.arkenna.indienest.backend.profile.domain.model.commands.CreatePortfolioCommand;
+import com.arkenna.indienest.backend.profile.domain.services.ProfileCommandService;
+import com.arkenna.indienest.backend.profile.domain.services.PortfolioCommandService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,21 +29,53 @@ public class AuthenticationController {
 
     private final AccountCommandService accountCommandService;
     private final AccountRepository accountRepository;
+    private final ProfileCommandService profileCommandService;
+    private final PortfolioCommandService portfolioCommandService;
 
-    public AuthenticationController(AccountCommandService accountCommandService, AccountRepository accountRepository) {
+    public AuthenticationController(AccountCommandService accountCommandService,
+                                    AccountRepository accountRepository,
+                                    ProfileCommandService profileCommandService,
+                                    PortfolioCommandService portfolioCommandService) {
         this.accountCommandService = accountCommandService;
         this.accountRepository = accountRepository;
+        this.profileCommandService = profileCommandService;
+        this.portfolioCommandService = portfolioCommandService;
     }
 
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@RequestBody SignUpResource resource) {
         var command = SignUpCommandFromResourceAssembler.toCommandFromResource(resource);
-        var userId = accountCommandService.handle(command);
 
-        if (userId.isEmpty()) {
+        var accountId = accountCommandService.handle(command);
+
+        if (accountId.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        return new ResponseEntity<>(userId.get().toString(), HttpStatus.CREATED);
+
+
+        try {
+            var createPortfolioCommand = new CreatePortfolioCommand();
+            var portfolioOptional = portfolioCommandService.handle(createPortfolioCommand);
+
+            if (portfolioOptional.isPresent()) {
+                Integer portfolioId = portfolioOptional.get().getId();
+                var createProfileCommand = new CreateProfileCommand(
+                        "Hi! I'm " + resource.name(),
+                        null,
+                        accountId.get(),
+                        portfolioId
+                );
+
+                profileCommandService.handle(createProfileCommand);
+                System.out.println("Profile created sucessfully.");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error creating automatic profile: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<>("Account created successfully", HttpStatus.CREATED);
     }
 
     @PostMapping("/sign-in")

@@ -75,9 +75,8 @@ public class AccountCommandServiceImpl implements AccountCommandService {
         );
 
         var account = new Account(createAccountCommand);
-        accountRepository.save(account);
-
-        return Optional.of(newUserId);
+        var createdAccount = accountRepository.save(account);
+        return Optional.of(createdAccount.getId());
     }
 
     @Override
