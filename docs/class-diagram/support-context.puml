@@ -1,0 +1,172 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+package "com.arkenna.indienest.backend.support"{
+    package "domain"{
+        package "model"{
+            package "aggregates"{
+                class Review <<Aggregate root>>{
+                    -userId: UserId
+                    -projectId: ProjectId
+                    -comment: ReviewComment
+                    -rating: Rating
+                    --
+                    +Review(command: CreateReviewCommand)
+                    +updateComment(comment: String): Void
+                    +updateRating(rating: Integer): Void
+                }
+            }
+            package "value objects"{
+                record UserId <<Value object>>{
+                    +userId: Integer
+                }
+                record ProjectId <<Value object>>{
+                    +projectId: Integer
+                }
+                record ReviewComment <<Value object>>{
+                    +comment: String
+                }
+                record Rating <<Value object>>{
+                    +rating: Integer
+                }
+            }
+            package "commands"{
+                record CreateReviewCommand <<Command>>{
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+            }
+            package "queries"{
+                record GetAllReviewsQuery <<Query>>{
+                }
+                record GetReviewByIdQuery <<Query>>{
+                    -id: Integer
+                }
+            }
+        }
+        package "services"{
+            interface ReviewCommandService <<Service>>{
+                +handle(CreateReviewCommand): Optional<Review>
+            }
+            interface ReviewQueryService <<Service>>{
+                +handle(GetAllReviewsQuery): List<Review>
+                +handle(GetReviewByIdQuery): Optional<Review>
+            }
+        }
+    }
+    package "infrastructure"{
+        package "persistence"{
+            package "jpa"{
+                package "repositories"{
+                    interface ReviewRepository <<Repository>>{
+                        +existsByUserIdAndComment(UserId, ReviewComment): boolean
+                    }
+                }
+            }
+        }
+    }
+    package "application"{
+        package "internal"{
+            package "command services"{
+                class ReviewCommandServiceImpl <<Service>>{
+                    -reviewRepository: ReviewRepository
+                    +handle(CreateReviewCommand): Optional<Review>
+                }
+            }
+            package "query services"{
+                class ReviewQueryServiceImpl <<Service>>{
+                    -reviewRepository: ReviewRepository
+                    +handle(GetAllReviewsQuery): List<Review>
+                    +handle(GetReviewByIdQuery): Optional<Review>
+                }
+            }
+        }
+        package "acl" {
+            class SupportContextFacadeImpl <<ACL>>{
+                -reviewCommandService: ReviewCommandService
+                --
+                +SupportContextFacadeImpl(ReviewCommandService)
+                +createReview(userId: Integer, projectId: Integer, comment: String, rating: Integer): Integer
+            }
+        }
+    }
+    package "interfaces"{
+        package "rest"{
+            class ReviewsController <<Controller>>{
+                -reviewCommandService: ReviewCommandService
+                -reviewQueryService: ReviewQueryService
+                --
+                +ReviewsController(ReviewCommandService, ReviewQueryService)
+                +createReview(CreateReviewResource): ResponseEntity<ReviewResource>
+                +getAllReviews(): ResponseEntity<List<ReviewResource>>
+                +getReviewById(id: Integer): ResponseEntity<ReviewResource>
+            }
+            package "resources"{
+                record ReviewResource <<Resource>>{
+                    +id: Integer
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+                record CreateReviewResource <<Resource>>{
+                    +userId: Integer
+                    +projectId: Integer
+                    +comment: String
+                    +rating: Integer
+                }
+            }
+            package "transform"{
+                class CreateReviewCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createReviewResource: CreateReviewResource): CreateReviewCommand {static}
+                }
+                class ReviewResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(review: Review): ReviewResource {static}
+                }
+            }
+        }
+
+        package "acl"{
+            interface SupportContextFacade<<ACL>>{
+                --
+                +createReview(userId: Integer, projectId: Integer, comment: String, rating: Integer): Integer
+            }
+        }
+    }
+}
+
+'DOMAIN LAYER
+'aggregates
+
+Review --> UserId
+Review --> ProjectId
+Review --> Rating
+Review --> ReviewComment
+Review ..> CreateReviewCommand
+
+'services
+ReviewCommandService ..> CreateReviewCommand
+ReviewQueryService ..> GetAllReviewsQuery
+ReviewQueryService ..> GetReviewByIdQuery
+
+
+'APPLICATION LAYER
+ReviewCommandServiceImpl ..|> ReviewCommandService
+ReviewCommandServiceImpl --> ReviewRepository
+ReviewQueryServiceImpl ..|> ReviewQueryService
+ReviewQueryServiceImpl --> ReviewRepository
+SupportContextFacadeImpl ..|> SupportContextFacade
+SupportContextFacadeImpl --> ReviewCommandService
+SupportContextFacadeImpl --> ReviewQueryService
+
+'INTERFACES LAYER
+CreateReviewCommandFromResourceAssembler ..> CreateReviewResource
+ReviewResourceFromEntityAssembler ..> Review
+ReviewsController ..> ReviewResource
+ReviewsController --> ReviewCommandService
+ReviewsController --> ReviewQueryService
+
+@enduml

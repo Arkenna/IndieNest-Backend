@@ -1,0 +1,35 @@
+package com.arkenna.indienest.backend.project.domain.model.aggregates;
+
+import com.arkenna.indienest.backend.project.domain.model.commands.CreateArtCommand;
+import com.arkenna.indienest.backend.project.domain.model.valueobjects.ArtCategory;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Getter;
+
+/**
+ * Art Aggregate Root
+ */
+@Entity
+@Getter
+public class Art extends Project {
+
+
+    @Enumerated(EnumType.STRING)
+    private ArtCategory category;
+
+    /**
+     * Default constructor
+     */
+    public Art(){}
+
+    /**
+     * Constructor with a CreateArtCommand
+     * @param command The {@link CreateArtCommand} instance
+     */
+    public Art(CreateArtCommand command){
+        super(command.authorId(), command.name(), command.description(), command.rating(), command.image());
+        this.category = ArtCategory.valueOf(command.category());
+    }
+}

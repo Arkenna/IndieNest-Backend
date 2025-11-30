@@ -1,0 +1,406 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+package "com.arkenna.indienest.backend.project"{
+    package "domain"{
+        package "model"{
+            package "aggregates"{
+                abstract class Project <<Aggregate root>>{
+                    -accountId: AccountId
+                    -name: ProjectName
+                    -description: ProjectDescription
+                    -rating: Rating
+                    -image: ProjectImage
+                    --
+                }
+                class Game <<Aggregate root>> extends Project{
+                    -price: Money
+                    -category: GameCategory
+                    --
+                    +Game(command: CreateGameCommand)
+                }
+                class Art <<Aggregate root>> extends Project{
+                    -category: ArtCategory
+                    --
+                    +Art(command: CreateArtCommand)
+                }
+                class Audio <<Aggregate root>> extends Project{
+                    -audioUrl: AudioUrl
+                    -format: AudioFormat
+                    -category: AudioCategory
+                    --
+                    +Audio(command: CreateAudioCommand)
+                }
+            }
+            package "value objects"{
+                record AccountId <<Value object>>{
+                    +accountId: Integer
+                }
+                record ProjectName <<Value object>>{
+                    +name: String
+                }
+                record ProjectDescription <<Value object>>{
+                    +description: String
+                }
+                record ProjectImage <<Value object>>{
+                    +image: String
+                }
+                record Rating <<Value object>>{
+                    +rating: Integer
+                }
+                enum GameCategory <<Value object>>{
+                    HORROR
+                    SURVIVAL
+                    FPS
+                    METROIDVANIA
+                    SANDBOX
+                    PUZZLE
+                    PLATFORMER
+                    RPG
+                }
+                enum AudioCategory <<Value object>>{
+                    SOUNDTRACK
+                    INSTRUMENTAL
+                    VOICE_ACTING
+                    SOUND_EFFECT
+                    OTHER
+                }
+                enum ArtCategory <<Value object>>{
+                    PIXEL_ART
+                    POSTER
+                    FAN_ART
+                    CHARACTER_DESIGN
+                    CONCEPT_ART
+                    BACKGROUND_DESIGN
+                }
+                record AudioUrl <<Value object>>{
+                    +url: String
+                }
+                record AudioFormat <<Value object>>{
+                    +format: String
+                }
+            }
+            package "commands"{
+                record CreateGameCommand <<Command>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +price: BigDecimal
+                    +category: String
+                }
+                record CreateArtCommand <<Command>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +category: String
+                }
+                record CreateAudioCommand <<Command>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +audioUrl: String
+                    +audioFormat: String
+                    +category: String
+                }
+            }
+            package "queries"{
+                record GetAllGamesQuery <<Query>>{
+                }
+                record GetGameByIdQuery <<Query>>{
+                    +id: Integer
+                }
+                record GetAllArtsQuery <<Query>>{
+                }
+                record GetArtByIdQuery <<Query>>{
+                    +id: Integer
+                }
+                record GetAllAudiosQuery <<Query>>{
+                }
+                record GetAudioByIdQuery <<Query>>{
+                    -id: Integer
+                }
+            }
+        }
+        package "services"{
+            interface GameCommandService <<Service>>{
+                +handle(CreateGameCommand): Optional<Game>
+            }
+            interface ArtCommandService <<Service>>{
+                +handle(CreateArtCommand): Optional<Art>
+            }
+            interface AudioCommandService <<Service>>{
+                +handle(CreateAudioCommand): Optional<Audio>
+            }
+            interface GameQueryService <<Service>>{
+                +handle(GetAllGamesQuery): List<Game>
+                +handle(GetGameByIdQuery): Optional<Game>
+            }
+            interface ArtQueryService <<Service>>{
+                +handle(GetAllArtsQuery): List<Art>
+                +handle(GetArtByIdQuery): Optional<Art>
+            }
+            interface AudioQueryService <<Service>>{
+                +handle(GetAllAudiosQuery): List<Audio>
+                +handle(GetAudioByIdQuery): Optional<Audio>
+            }
+        }
+    }
+    package "infrastructure"{
+        package "persistence"{
+            package "jpa"{
+                package "repositories"{
+                    interface GameRepository <<Repository>>{
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
+                    }
+                    interface ArtRepository <<Repository>>{
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
+                    }
+                    interface AudioRepository <<Repository>>{
+                        +existsByAccountIdAndName(AccountId, ProjectName): boolean
+                    }
+                }
+            }
+        }
+    }
+    package "application"{
+        package "internal"{
+            package "command services"{
+                class GameCommandServiceImpl <<Service>>{
+                    -gameRepository: GameRepository
+                    +handle(CreateGameCommand): Optional<Game>
+                }
+                class ArtCommandServiceImpl <<Service>>{
+                    -artRepository: ArtRepository
+                    +handle(CreateArtCommand): Optional<Art>
+                }
+                class AudioCommandServiceImpl <<Service>>{
+                    -audioRepository: AudioRepository
+                    +handle(CreateAudioCommand): Optional<Audio>
+                }
+            }
+            package "query services"{
+                class GameQueryServiceImpl <<Service>>{
+                    -gameRepository: GameRepository
+                    +handle(GetAllGamesQuery): List<Game>
+                    +handle(GetGameByIdQuery): Optional<Game>
+                }
+                class ArtQueryServiceImpl <<Service>>{
+                    -artRepository: ArtRepository
+                    +handle(GetAllArtsQuery): List<Art>
+                    +handle(GetArtByIdQuery): Optional<Art>
+                }
+                class AudioQueryServiceImpl <<Service>>{
+                    -audioRepository: AudioRepository
+                    +handle(GetAllAudiosQuery): List<Audio>
+                    +handle(GetAudioByIdQuery): Optional<Audio>
+                }
+            }
+        }
+        package "acl" {
+            class ProjectContextFacadeImpl <<ACL>>{
+                -gameCommandService: GameCommandService
+                -artCommandService: ArtCommandService
+                -audioCommandService: AudioCommandService
+                --
+                +ProjectContextFacadeImpl(GameCommandService, ArtCommandService, AudioCommandService)
+                +createGame(accountId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                +createArt(accountId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                +createAudio(accountId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
+            }
+        }
+    }
+    package "interfaces"{
+        package "rest"{
+            class GamesController <<Controller>>{
+                -gameCommandService: GameCommandService
+                -gameQueryService: GameQueryService
+                --
+                +GamesController(GameCommandService, GameQueryService)
+                +createGame(CreateGameResource): ResponseEntity<GameResource>
+                +getAllGames(): ResponseEntity<List<GameResource>>
+                +getGameById(id: Integer): ResponseEntity<GameResource>
+            }
+            class ArtsController <<Controller>>{
+                -artCommandService: ArtCommandService
+                -artQueryService: ArtQueryService
+                --
+                +ArtsController(ArtCommandService, ArtQueryService)
+                +createArt(CreateArtResource): ResponseEntity<ArtResource>
+                +getAllArts(): ResponseEntity<List<ArtResource>>
+                +getArtById(id: Integer): ResponseEntity<ArtResource>
+            }
+            class AudiosController <<Controller>>{
+                -audioCommandService: AudioCommandService
+                -audioQueryService: AudioQueryService
+                --
+                +AudiosController(AudioCommandService, AudioQueryService)
+                +createAudio(CreateAudioResource): ResponseEntity<AudioResource>
+                +getAllAudios(): ResponseEntity<List<AudioResource>>
+                +getAudioById(id: Integer): ResponseEntity<AudioResource>
+            }
+            package "resources"{
+                record GameResource <<Resource>>{
+                    +id: Integer
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Integer
+                    +image: String
+                    +price: BigDecimal
+                    +category: String
+                }
+                record ArtResource <<Resource>>{
+                    +id: Integer
+                    +accountId: Integer
+                    +name: ProjectName
+                    +description: String
+                    +rating: Integer
+                    +image: String
+                    +category: String
+                }
+                record AudioResource <<Resource>>{
+                    +id: Integer
+                    +accountId: Integer
+                    +name: ProjectName
+                    +description: String
+                    +rating: Integer
+                    +image: String
+                    +audioUrl: String
+                    +format: String
+                    +category: String
+                }
+                record CreateGameResource <<Resource>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +price: BigDecimal
+                    +category: String
+                }
+                record CreateArtResource <<Resource>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +category: String
+                }
+                record CreateAudioResource <<Resource>>{
+                    +accountId: Integer
+                    +name: String
+                    +description: String
+                    +rating: Number
+                    +image: String
+                    +audioUrl: String
+                    +format: String
+                    +category: String
+                }
+            }
+            package "transform"{
+                class CreateGameCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createGameResource: CreateGameResource): CreateGameCommand {static}
+                }
+                class CreateArtCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createArtResource: (CreateArtResource): CreateArtCommand {static}
+                }
+                class CreateAudioCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createAudioResource: CreateAudioResource): CreateAudioCommand {static}
+                }
+                class GameResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(game: Game): GameResource {static}
+                }
+                class ArtResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(art: Art): ArtResource {static}
+                }
+                class AudioResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(audio: Audio): AudioResource {static}
+                }
+            }
+        }
+
+        package "acl"{
+            interface ProjectContextFacade <<ACL>>{
+                +createGame(accountId: Integer, name: String, description: String, rating: Integer, image: String, price: BigDecimal, category: String): Integer
+                +createArt(accountId: Integer, name: String, description: String, rating: Integer, image: String, category: String): Integer
+                +createAudio(accountId: Integer, name: String, description: String, rating: Integer, image: String, audioUrl: String, audioFormat: String, category: String): Integer
+            }
+        }
+    }
+}
+
+'DOMAIN LAYER
+'aggregates
+Project --> AccountId
+Project --> ProjectName
+Project --> ProjectDescription
+Project --> ProjectImage
+Project --> Rating
+Game --> GameCategory
+Art --> ArtCategory
+Audio --AudioUrl
+Audio --> AudioFormat
+Audio --> AudioCategory
+
+'services
+GameCommandService ..> CreateGameCommand
+GameQueryService ..> GetAllGamesQuery
+GameQueryService ..> GetGameByIdQuery
+ArtCommandService ..> CreateArtCommand
+ArtQueryService ..> GetAllArtsQuery
+ArtQueryService ..> GetArtByIdQuery
+AudioCommandService ..> CreateAudioCommand
+AudioQueryService ..> GetAllAudiosQuery
+AudioQueryService ..> GetAudioByIdQuery
+
+'APPLICATION LAYER
+GameCommandServiceImpl ..|> GameCommandService
+GameCommandServiceImpl --> GameRepository
+ArtCommandServiceImpl --> ArtRepository
+ArtCommandServiceImpl ..|> ArtCommandService
+AudioCommandServiceImpl --> AudioRepository
+AudioCommandServiceImpl ..|> AudioCommandService
+GameQueryServiceImpl ..|> GameQueryService
+GameQueryServiceImpl --> GameRepository
+ArtQueryServiceImpl ..|> ArtQueryService
+ArtQueryServiceImpl --> ArtRepository
+AudioQueryServiceImpl ..|> AudioQueryService
+AudioQueryServiceImpl --> AudioRepository
+ProjectContextFacadeImpl ..|> ProjectContextFacade
+ProjectContextFacadeImpl --> GameCommandService
+ProjectContextFacadeImpl --> GameQueryService
+ProjectContextFacadeImpl --> ArtCommandService
+ProjectContextFacadeImpl --> ArtQueryService
+ProjectContextFacadeImpl --> AudioCommandService
+ProjectContextFacadeImpl --> AudioQueryService
+
+'INTERFACES LAYER
+CreateGameCommandFromResourceAssembler ..> CreateGameResource
+CreateArtCommandFromResourceAssembler ..> CreateArtResource
+CreateAudioCommandFromResourceAssembler ..> CreateAudioResource
+GameResourceFromEntityAssembler ..> Game
+ArtResourceFromEntityAssembler ..> Art
+AudioResourceFromEntityAssembler ..> Audio
+GamesController ..> GameResource
+GamesController --> GameCommandService
+GamesController --> GameQueryService
+ArtsController ..> ArtResource
+ArtsController --> ArtCommandService
+ArtsController --> ArtQueryService
+AudiosController ..> AudioResource
+AudiosController --> AudioCommandService
+AudiosController --> AudioQueryService
+
+
+
+
+
+
+@enduml

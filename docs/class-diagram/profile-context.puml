@@ -1,0 +1,262 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+package "com.arkenna.indienest.backend.profile"{
+    package "domain"{
+        package "model"{
+            package "aggregates"{
+                class Portfolio <<Aggregate root>>{
+                    -gameIds: GameId[]
+                    -audioIds: AudioId[]
+                    -artIds: ArtId[]
+                    --
+                    +Portfolio(command: CreatePortfolioCommand)
+                }
+                class Profile <<Aggregate root>>{
+                    -accountId: AccountId
+                    -portfolioId: PortfolioId
+                    -description: ProfileDescription
+                    -image: ProfileImage
+                    --
+                    +Profile(command: CreateProfileCommand)
+                }
+            }
+            package "value objects"{
+                record PortfolioId <<Value object>>{
+                    +portfolioId: Integer | Null
+                }
+                record GameId <<Value object>>{
+                    +gameId: Integer
+                }
+                record ArtId <<Value object>>{
+                    +artId: Integer
+                }
+                record AudioId <<Value object>>{
+                    +audioId: Integer
+                }
+                record AccountId <<Value object>>{
+                    +accountId: Integer
+                }
+                record ProfileDescription <<Value object>>{
+                    +description: String
+                }
+                record ProfileImage <<Value object>>{
+                    +image: String | Null
+                }
+                record PortfolioImage <<Value object>>{
+                    +image: String
+                }
+            }
+            package "commands"{
+                record CreatePortfolioCommand <<Command>>{
+                }
+                record CreateProfileCommand <<Command>>{
+                    +description: String
+                    +image: String
+                    +accountId: Integer
+                    +portfolioId: Integer
+                }
+            }
+            package "queries"{
+                record GetAllPortfoliosQuery <<Query>>{
+                }
+                record GetPortfolioByIdQuery <<Query>>{
+                    +id: Integer
+                }
+                record GetAllProfilesQuery <<Query>>{
+                }
+                record GetProfileByIdQuery <<Query>>{
+                    +id: Integer
+                }
+            }
+        }
+        package "services"{
+            interface PortfolioCommandService <<Service>>{
+                +handle(CreatePortfolioCommand): Optional<Portfolio>
+            }
+            interface ProfileCommandService <<Service>>{
+                +handle(CreateProfileCommand): Optional<Profile>
+            }
+            interface PortfolioQueryService <<Service>>{
+                +handle(GetAllPortfoliosQuery): List<Portfolio>
+                +handle(GetPortfolioByIdQuery): Optional<Portfolio>
+            }
+            interface ProfileQueryService <<Service>>{
+                +handle(GetAllProfilesQuery): List<Profile>
+                +handle(GetProfileByIdQuery): Optional<Profile>
+            }
+        }
+    }
+    package "infrastructure"{
+        package "persistence"{
+            package "jpa"{
+                package "repositories"{
+                    interface PortfolioRepository <<Repository>>{
+                        +existsByGameIdsAndAudioIdsAndArtIds(GameId[], AudioId[], ArtId[]): boolean
+                    }
+                    interface ProfileRepository <<Repository>>{
+                        +existsByAccountId(AccountId): boolean
+                    }
+                }
+            }
+        }
+    }
+    package "application"{
+        package "internal"{
+            package "command services"{
+                class PortfolioCommandServiceImpl <<Service>>{
+                    -portfolioRepository: PortfolioRepository
+                    +handle(CreatePortfolioCommand): Optional<Portfolio>
+                }
+                class ProfileCommandServiceImpl <<Service>>{
+                    -profileRepository: ProfileRepository
+                    +handle(CreateProfileCommand): Optional<Profile>
+                }
+            }
+            package "query services"{
+                class PortfolioQueryServiceImpl <<Service>>{
+                    -portfolioRepository: PortfolioRepository
+                    +handle(GetAllPortfoliosQuery): List<Portfolio>
+                    +handle(GetPortfolioByIdQuery): Optional<Portfolio>
+                }
+                class ProfileQueryServiceImpl <<Service>>{
+                    -profileRepository: ProfileRepository
+                    +handle(GetAllProfilesQuery): List<Profile>
+                    +handle(GetProfileByIdQuery): Optional<Profile>
+                }
+            }
+        }
+        package "acl" {
+            class ProfileContextFacadeImpl <<ACL>>{
+                -portfolioCommandService: PortfolioCommandService
+                -profileCommandService: ProfileCommandService
+                --
+                +ProfileContextFacadeImpl(PortfolioCommandService, ProfileCommandService)
+                +createPortfolio(): Integer
+                +createProfile(description: String, image: String, accountId: String, portfolioId: Integer): Integer
+            }
+        }
+    }
+    package "interfaces"{
+        package "rest"{
+            class PortfoliosController <<Controller>>{
+                -portfolioCommandService: PortfolioCommandService
+                -portfolioQueryService: PortfolioQueryService
+                --
+                +PortfoliosController(PortfolioCommandService, PortfolioQueryService)
+                +createPortfolio(CreatePortfolioResource): ResponseEntity<PortfolioResource>
+                +getAllPortfolios(): ResponseEntity<List<PortfolioResource>>
+                +getPortfolioById(id: Integer): ResponseEntity<PortfolioResource>
+            }
+            class ProfilesController <<Controller>>{
+                -profileCommandService: ProfileCommandService
+                -profileQueryService: ProfileQueryService
+                --
+                +ProfilesController(ProfileCommandService, ProfileQueryService)
+                +createProfile(CreateProfileResource): ResponseEntity<ProfileResource>
+                +getAllProfiles(): ResponseEntity<List<ProfileResource>>
+                +getProfileById(id: Integer): ResponseEntity<ProfileResource>
+            }
+            package "resources"{
+                record PortfolioResource <<Resource>>{
+                    +id: Integer
+                    +gameIds: Integer[]
+                    +audioIds: Integer[]
+                    +artIds: Integer[]
+                }
+                record ProfileResource <<Resource>>{
+                    +id: Integer,
+                    +description: String
+                    +image: String
+                    +accountId: String
+                    +portfolioId: Integer
+                }
+                record CreatePortfolioResource <<Resource>>{
+                }
+                record CreateProfileResource <<Resource>>{
+                    +description: String
+                    +image: String
+                    +accountId: String
+                    +portfolioId: Integer
+                }
+            }
+            package "transform"{
+                class CreatePortfolioCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createPortfolioResource: CreatePortfolioResource): CreatePortfolioCommand {static}
+                }
+                class CreateProfileCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createProfileResource: (CreateProfileResource): CreateProfileCommand {static}
+                }
+                class PortfolioResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(portfolio: Portfolio): PortfolioResource {static}
+                }
+                class ProfileResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(profile: Profile): ProfileResource {static}
+                }
+            }
+        }
+
+        package "acl"{
+            interface ProfileContextFacade<<ACL>>{
+                --
+                +createPortfolio(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                +createProfile(description: String, image: String, accountId: String, portfolioId: Integer): Integer
+            }
+        }
+    }
+}
+
+'DOMAIN LAYER
+'aggregates
+Profile --> ProfileDescription
+Profile --> ProfileImage
+Profile --> PortfolioId
+Profile --> AccountId
+Profile ..> CreateProfileCommand
+Portfolio --> GameId
+Portfolio --> ArtId
+Portfolio --> AudioId
+Portfolio ..> CreatePortfolioCommand
+
+'services
+PortfolioCommandService ..> CreatePortfolioCommand
+PortfolioQueryService ..> GetAllPortfoliosQuery
+PortfolioQueryService ..> GetPortfolioByIdQuery
+ProfileCommandService ..> CreateProfileCommand
+ProfileQueryService ..> GetAllProfilesQuery
+ProfileQueryService ..> GetProfileByIdQuery
+
+'APPLICATION LAYER
+PortfolioCommandServiceImpl ..|> PortfolioCommandService
+PortfolioCommandServiceImpl --> PortfolioRepository
+ProfileCommandServiceImpl --> ProfileRepository
+ProfileCommandServiceImpl ..|> ProfileCommandService
+PortfolioQueryServiceImpl ..|> PortfolioQueryService
+PortfolioQueryServiceImpl --> PortfolioRepository
+ProfileQueryServiceImpl ..|> ProfileQueryService
+ProfileQueryServiceImpl --> ProfileRepository
+ProfileContextFacadeImpl ..|> ProfileContextFacade
+ProfileContextFacadeImpl --> PortfolioCommandService
+ProfileContextFacadeImpl --> PortfolioQueryService
+ProfileContextFacadeImpl --> ProfileCommandService
+ProfileContextFacadeImpl --> ProfileQueryService
+
+'INTERFACES LAYER
+CreatePortfolioCommandFromResourceAssembler ..> CreatePortfolioResource
+CreateProfileCommandFromResourceAssembler ..> CreateProfileResource
+PortfolioResourceFromEntityAssembler ..> Portfolio
+ProfileResourceFromEntityAssembler ..> Profile
+PortfoliosController ..> PortfolioResource
+PortfoliosController --> PortfolioCommandService
+PortfoliosController --> PortfolioQueryService
+ProfilesController ..> ProfileResource
+ProfilesController --> ProfileCommandService
+ProfilesController --> ProfileQueryService
+
+
+
+
+
+
+@enduml

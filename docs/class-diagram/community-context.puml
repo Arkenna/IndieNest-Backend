@@ -1,0 +1,267 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+package "com.arkenna.indienest.backend.community"{
+    package "domain"{
+        package "model"{
+            package "aggregates"{
+                class Publication <<Aggregate root>>{
+                    -userId: UserId
+                    -title: PublicationTitle
+                    -comment: PublicationComment
+                    -image: PublicationImage
+                    --
+                    +Publication(command: CreatePublicationCommand)
+                }
+                class Answer <<Aggregate root>>{
+                    -userId: UserId,
+                    -publicationId: PublicationId
+                    -comment: AnswerComment
+                    --
+                    +Answer(command: CreateAnswerCommand)
+                }
+            }
+            package "value objects"{
+                record PublicationId <<Value object>>{
+                    +publicationId: Integer
+                }
+                record UserId <<Value object>>{
+                    +userId: Integer
+                }
+                record PublicationTitle <<Value object>>{
+                    +title: String
+                }
+                record PublicationComment <<Value object>>{
+                    +comment: String | Null
+                }
+                record PublicationImage <<Value object>>{
+                    +image: String | Null
+                }
+                record AnswerComment <<Value object>>{
+                    +comment: String
+                }
+            }
+            package "commands"{
+                record CreatePublicationCommand <<Command>>{
+                    +userId: Integer
+                    +title: String
+                    +comment: String | Null
+                    +image: String | Null
+                }
+                record CreateAnswerCommand <<Command>>{
+                    +userId: Integer
+                    +publicationId: Integer
+                    +comment: String
+                }
+            }
+            package "queries"{
+                record GetAllPublicationsQuery <<Query>>{
+                }
+                record GetPublicationByIdQuery <<Query>>{
+                    +id: Integer
+                }
+                record GetAllAnswersQuery <<Query>>{
+                }
+                record GetAnswerByIdQuery <<Query>>{
+                    +id: Integer
+                }
+            }
+        }
+        package "services"{
+            interface PublicationCommandService <<Service>>{
+                +handle(CreatePublicationCommand): Optional<Publication>
+            }
+            interface AnswerCommandService <<Service>>{
+                +handle(CreateAnswerCommand): Optional<Answer>
+            }
+            interface PublicationQueryService <<Service>>{
+                +handle(GetAllPublicationsQuery): List<Publication>
+                +handle(GetPublicationByIdQuery): Optional<Publication>
+            }
+            interface AnswerQueryService <<Service>>{
+                +handle(GetAllAnswersQuery): List<Answer>
+                +handle(GetAnswerByIdQuery): Optional<Answer>
+            }
+        }
+    }
+
+
+    package "application"{
+        package "internal"{
+            package "command services"{
+                class PublicationCommandServiceImpl <<Service>>{
+                    -publicationRepository: PublicationRepository
+                    +handle(CreatePublicationCommand): Optional<Publication>
+                }
+                class AnswerCommandServiceImpl <<Service>>{
+                    -answerRepository: AnswerRepository
+                    +handle(CreateAnswerCommand): Optional<Answer>
+                }
+            }
+            package "query services"{
+                class PublicationQueryServiceImpl <<Service>>{
+                    -publicationRepository: PublicationRepository
+                    +handle(GetAllPublicationsQuery): List<Publication>
+                    +handle(GetPublicationByIdQuery): Optional<Publication>
+                }
+                class AnswerQueryServiceImpl <<Service>>{
+                    -answerRepository: AnswerRepository
+                    +handle(GetAllAnswersQuery): List<Answer>
+                    +handle(GetAnswerByIdQuery): Optional<Answer>
+                }
+            }
+        }
+        package "acl" {
+            class CommunityContextFacadeImpl <<ACL>>{
+                -publicationCommandService: PublicationCommandService
+                -answerCommandService: AnswerCommandService
+                --
+                +CommunityContextFacadeImpl(PublicationCommandService, AnswerCommandService)
+                +createPublication(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                +createAnswer(userId: Integer, publicationId: Integer, comment: String): Integer
+            }
+        }
+    }
+
+    package "interfaces"{
+        package "rest"{
+            class PublicationsController <<Controller>>{
+                -publicationCommandService: PublicationCommandService
+                -publicationQueryService: PublicationQueryService
+                --
+                +PublicationsController(PublicationCommandService, PublicationQueryService)
+                +createPublication(CreatePublicationResource): ResponseEntity<PublicationResource>
+                +getAllPublications(): ResponseEntity<List<PublicationResource>>
+                +getPublicationById(id: Integer): ResponseEntity<PublicationResource>
+            }
+            class AnswersController <<Controller>>{
+                -answerCommandService: AnswerCommandService
+                -answerQueryService: AnswerQueryService
+                --
+                +AnswersController(AnswerCommandService, AnswerQueryService)
+                +createAnswer(CreateAnswerResource): ResponseEntity<AnswerResource>
+                +getAllAnswers(): ResponseEntity<List<AnswerResource>>
+                +getAnswerById(id: Integer): ResponseEntity<AnswerResource>
+            }
+            package "resources"{
+                record PublicationResource <<Resource>>{
+                    +id: Integer
+                    +userId: Integer
+                    +title: String
+                    +comment: String | Null
+                    +image: String | Null
+                }
+                record AnswerResource <<Resource>>{
+                    +id: Integer,
+                    +userId: Integer
+                    +publicationId: Integer
+                    +comment: String
+                }
+                record CreatePublicationResource <<Resource>>{
+                    +userId: Integer
+                    +title: String
+                    +comment: String | Null
+                    +image: String | Null
+                }
+                record CreateAnswerResource <<Resource>>{
+                    +userId: Integer
+                    +publicationId: Integer
+                    +comment: String
+                }
+            }
+            package "transform"{
+                class CreatePublicationCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createPublicationResource: CreatePublicationResource): CreatePublicationCommand {static}
+                }
+                class CreateAnswerCommandFromResourceAssembler<<Assembler>>{
+                    +toCommandFromResource(createAnswerResource: (CreateAnswerResource): CreateAnswerCommand {static}
+                }
+                class PublicationResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(publication: Publication): PublicationResource {static}
+                }
+                class AnswerResourceFromEntityAssembler<<Assembler>>{
+                    +toResourceFromEntity(answer: Answer): AnswerResource {static}
+                }
+            }
+        }
+
+        package "acl"{
+            interface CommunityContextFacade<<ACL>>{
+                --
+                +createPublication(userId: Integer, title: String, comment: String | Null, image: String | Null): Integer
+                +createAnswer(userId: Integer, publicationId: Integer, comment: String): Integer
+            }
+        }
+    }
+
+    package "infrastructure"{
+            package "persistence"{
+                package "jpa"{
+                    package "repositories"{
+                        interface PublicationRepository <<Repository>>{
+                            +existsByUserIdAndTitle(UserId, PublicationTitle): boolean
+                        }
+                        interface AnswerRepository <<Repository>>{
+                            +existsByUserIdAndComment(UserId, AnswerComment): boolean                    }
+                    }
+                }
+            }
+        }
+}
+
+'DOMAIN LAYER
+'aggregates
+Answer --> PublicationId
+Answer --> UserId
+Answer --> AnswerComment
+Answer ..> CreateAnswerCommand
+Publication --> PublicationId
+Publication --> UserId
+Publication --> PublicationTitle
+Publication -->PublicationComment
+Publication --> PublicationImage
+Publication ..> CreatePublicationCommand
+'queries
+GetPublicationByIdQuery --> PublicationId
+'services
+PublicationCommandService ..> CreatePublicationCommand
+PublicationQueryService ..> GetAllPublicationsQuery
+PublicationQueryService ..> GetPublicationByIdQuery
+AnswerCommandService ..> CreateAnswerCommand
+AnswerQueryService ..> GetAllAnswersQuery
+AnswerQueryService ..> GetAnswerByIdQuery
+
+'APPLICATION LAYER
+PublicationCommandServiceImpl ..|> PublicationCommandService
+PublicationCommandServiceImpl --> PublicationRepository
+AnswerCommandServiceImpl --> AnswerRepository
+AnswerCommandServiceImpl ..|> AnswerCommandService
+PublicationQueryServiceImpl ..|> PublicationQueryService
+PublicationQueryServiceImpl --> PublicationRepository
+AnswerQueryServiceImpl ..|> AnswerQueryService
+AnswerQueryServiceImpl --> AnswerRepository
+CommunityContextFacadeImpl ..|> CommunityContextFacade
+CommunityContextFacadeImpl --> PublicationCommandService
+CommunityContextFacadeImpl --> PublicationQueryService
+CommunityContextFacadeImpl --> AnswerCommandService
+CommunityContextFacadeImpl --> AnswerQueryService
+
+'INTERFACES LAYER
+CreatePublicationCommandFromResourceAssembler ..> CreatePublicationResource
+CreateAnswerCommandFromResourceAssembler ..> CreateAnswerResource
+PublicationResourceFromEntityAssembler ..> Publication
+AnswerResourceFromEntityAssembler ..> Answer
+PublicationsController ..> PublicationResource
+PublicationsController --> PublicationCommandService
+PublicationsController --> PublicationQueryService
+AnswersController ..> AnswerResource
+AnswersController --> AnswerCommandService
+AnswersController --> AnswerQueryService
+
+
+
+
+
+
+@enduml
